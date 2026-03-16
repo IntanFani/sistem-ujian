@@ -24,8 +24,8 @@
             <li class="{{ request()->is('admin/dashboard') ? 'active' : '' }}">
                 <a href="/admin/dashboard"><i class="bi bi-grid-fill"></i> Dashboard</a>
             </li>
-            <li class="{{ request()->is('admin/mata-pelajaran*') ? 'active' : '' }}">
-                <a href="#"><i class="bi bi-book"></i> Mata Pelajaran</a>
+            <li class="{{ request()->is('admin/subjects*') ? 'active' : '' }}">
+                <a href="{{ route('admin.subjects.index') }}"> <i class="bi bi-book"></i> Mata Pelajaran</a>
             </li>
             <li>
                 <a href="#"><i class="bi bi-people"></i> Data Siswa</a>
@@ -68,6 +68,7 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     $(document).ready(function () {
         $('#sidebarCollapse').on('click', function () {
@@ -76,5 +77,30 @@
         });
     });
 </script>
+<script>
+    $(document).ready(function() {
+        // Cek apakah ada session success
+        @if(session('success'))
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000, // Muncul selama 3 detik
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+
+            Toast.fire({
+                icon: 'success',
+                title: "{{ session('success') }}"
+            });
+        @endif
+    });
+</script>
+
+@yield('scripts')
 </body>
 </html>
