@@ -27,6 +27,9 @@
             <li class="{{ request()->is('admin/subjects*') ? 'active' : '' }}">
                 <a href="{{ route('admin.subjects.index') }}"> <i class="bi bi-book"></i> Mata Pelajaran</a>
             </li>
+            <li class="{{ request()->is('admin/gurus*') ? 'active' : '' }}">
+                <a href="{{ route('admin.gurus.index') }}"> <i class="bi bi-people"></i> Manajemen Guru</a>
+            </li>
             <li>
                 <a href="#"><i class="bi bi-people"></i> Data Siswa</a>
             </li>
