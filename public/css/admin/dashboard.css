@@ -1,0 +1,93 @@
+:root {
+    --primary-green: #006a4e;
+    --hover-green: #00563f;
+    --bg-light: #f4f7f6;
+    --sidebar-width: 260px;
+}
+
+body { 
+    font-family: 'Inter', sans-serif; 
+    background-color: var(--bg-light); 
+    overflow-x: hidden; 
+}
+
+.wrapper { display: flex; width: 100%; align-items: stretch; }
+
+/* Sidebar */
+#sidebar {
+    min-width: var(--sidebar-width);
+    max-width: var(--sidebar-width);
+    background: #fff;
+    min-height: 100vh;
+    border-right: 1px solid #eef2f6;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+#sidebar.active { margin-left: calc(-1 * var(--sidebar-width)); }
+
+#sidebar .sidebar-header { padding: 30px 20px; text-align: center; }
+#sidebar .sidebar-header img { width: 50px; margin-bottom: 10px; }
+
+#sidebar ul li a {
+    padding: 12px 25px;
+    display: flex;
+    align-items: center;
+    color: #64748b;
+    text-decoration: none;
+    transition: 0.2s;
+    border-radius: 0;
+}
+
+#sidebar ul li.active a, #sidebar ul li a:hover {
+    background: rgba(0, 106, 78, 0.05);
+    color: var(--primary-green);
+    border-right: 4px solid var(--primary-green);
+    font-weight: 600;
+}
+
+#sidebar ul li a i { margin-right: 15px; font-size: 1.2rem; }
+
+.sidebar-footer { margin-top: auto; padding: 20px; }
+.btn-logout { 
+    width: 100%; 
+    border-radius: 10px; 
+    padding: 10px; 
+    color: #dc3545; 
+    border: 1px solid #ffdbdb; 
+    background: #fff5f5; 
+    transition: 0.3s;
+}
+.btn-logout:hover { background: #fee2e2; }
+
+/* Navbar Custom */
+.navbar-custom {
+    height: 70px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+.btn-toggle { background: none; border: none; font-size: 1.5rem; color: var(--primary-green); }
+
+.user-profile { display: flex; align-items: center; }
+.user-profile img { width: 40px; height: 40px; border-radius: 10px; border: 2px solid #eee; }
+.user-profile .name { font-weight: 600; font-size: 0.9rem; color: #334155; }
+.user-profile .role { font-size: 0.75rem; }
+
+/* Content Area */
+#content { width: 100%; transition: all 0.3s; }
+#content.active { width: 100%; }
+
+/* Card Stats */
+.card-stats {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    transition: 0.3s;
+}
+.card-stats:hover { transform: translateY(-5px); }

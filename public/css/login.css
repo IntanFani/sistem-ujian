@@ -1,0 +1,160 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.login-wrapper {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+/* Bagian Kiri */
+.left-panel {
+    flex: 1;
+    background-color: #006a3e;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px;
+    color: white;
+    position: relative; 
+    overflow: hidden; 
+}
+
+/* Dekorasi Lingkaran 1 (Kiri Atas) */
+.left-panel::before {
+    content: "";
+    position: absolute;
+    width: 400px; 
+    height: 400px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    top: -150px;
+    left: -150px;
+}
+
+/* Dekorasi Lingkaran 2 (Kanan Bawah) */
+.left-panel::after {
+    content: "";
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 50%;
+    bottom: -50px;
+    right: -50px;
+}
+
+.left-panel h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+}
+
+.left-panel p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 400px;
+    opacity: 0.9;
+}
+
+/* Bagian Kanan (Form) */
+.right-panel {
+    flex: 1.2;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+}
+
+.school-logo {
+    width: 120px;
+    margin-bottom: 20px;
+}
+
+.login-box h4 {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 30px;
+    line-height: 1.4;
+}
+
+.form-group {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #667;
+    font-size: 0.9rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #d1d9e0;
+    border-radius: 8px;
+    background-color: #f1f5f9;
+    font-size: 1rem;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    background-color: #006a3e;
+    color: white;
+    border: none;
+    border-radius: 25px; 
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+.btn-login:hover {
+    background-color: #005632;
+}
+
+.copy-text {
+    margin-top: 40px;
+    font-size: 0.8rem;
+    color: #99a;
+}
+
+/* --- RESPONSIVE MODE --- */
+@media (max-width: 992px) {
+    /* Menghilangkan panel hijau di layar HP/Tablet kecil */
+    .left-panel {
+        display: none;
+    }
+    
+    .right-panel {
+        flex: 1;
+        background-color: #f4f7f6; 
+    }
+    
+    .login-box {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(226, 225, 225, 0.329);
+    }
+}
