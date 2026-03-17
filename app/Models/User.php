@@ -47,4 +47,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function guru()
+{
+    // Asumsi di tabel gurus ada kolom user_id
+    return $this->hasOne(Guru::class, 'user_id'); 
+}
 }

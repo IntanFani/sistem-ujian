@@ -5,33 +5,56 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\GuruController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\QuestionController;
+use App\Http\Controllers\Admin\KelasController;
+use App\Http\Controllers\Admin\SiswaController;
+use App\Http\Controllers\Guru\DashboardController as GuruDashboard;
+use App\Http\Controllers\Guru\ExamController;
 
-Route::get('/', function () { return redirect('/login');});
+// Redirection awal
+Route::get('/', function () { return redirect('/login'); });
 
-// Route untuk Login
+// Route untuk Login (Terbuka untuk umum)
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Group Route yang butuh login
+// SEMUA Route di bawah ini WAJIB login
 Route::middleware(['auth'])->group(function () {
     
-    // Dashboard Admin
-    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    // --- GROUP KHUSUS ADMIN ---
+    // Tambahkan checkRole:admin agar Guru tidak bisa "nyasar" ke sini
+    Route::middleware(['checkRole:admin'])->prefix('admin')->name('admin.')->group(function () {
+        
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    //Route untuk manajemen mapel
-    Route::get('/admin/subjects', [SubjectController::class, 'index'])->name('admin.subjects.index');
-    Route::post('/admin/subjects', [SubjectController::class, 'store'])->name('admin.subjects.store');
-    Route::put('/admin/subjects/{id}', [SubjectController::class, 'update'])->name('admin.subjects.update');
-    Route::delete('/admin/subjects/{id}', [SubjectController::class, 'destroy'])->name('admin.subjects.destroy');
+        // Manajemen Mapel
+        Route::resource('/subjects', SubjectController::class)->names('subjects');
 
-    //Route untuk manajemen guru
-    Route::resource('/admin/gurus', GuruController::class)->names('admin.gurus');
-    Route::put('/admin/gurus/{id}/reset-password', [GuruController::class, 'resetPassword'])->name('admin.gurus.reset');
+        // Manajemen Guru
+        Route::resource('/gurus', GuruController::class)->names('gurus');
+        Route::put('/gurus/{id}/reset-password', [GuruController::class, 'resetPassword'])->name('gurus.reset');
 
-    //Route untuk manajemen kelas
-    Route::resource('/admin/kelas', App\Http\Controllers\Admin\KelasController::class)->names('admin.kelas');
+        // Manajemen Kelas & Siswa
+        Route::resource('/kelas', KelasController::class)->names('kelas');
+        Route::resource('/siswas', SiswaController::class)->names('siswas');
 
-    //Route untuk manajemen siswa
-    Route::resource('/admin/siswas', App\Http\Controllers\Admin\SiswaController::class)->names('admin.siswas');
+        // Bank Soal Admin
+        Route::resource('/questions', QuestionController::class)->names('questions');
+    });
+
+    // --- GROUP KHUSUS GURU ---
+    Route::middleware(['checkRole:guru'])->prefix('guru')->name('guru.')->group(function () {
+        Route::get('/dashboard', [GuruDashboard::class, 'index'])->name('dashboard');
+        
+        // Rute Bank Soal Khusus Guru
+        Route::resource('/questions', App\Http\Controllers\Guru\QuestionController::class)->names('questions');
+
+        // Route Manajemen ujian
+        Route::resource('/exams', ExamController::class);
+        Route::get('/exams/{id}/questions', [ExamController::class, 'manageQuestions'])->name('exams.questions');
+        Route::post('/exams/{id}/questions', [ExamController::class, 'storeQuestions'])->name('exams.questions.store');
+        Route::delete('/exams/{id}/questions/remove', [ExamController::class, 'removeQuestion'])->name('exams.questions.remove');
+    });
+
 });

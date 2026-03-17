@@ -23,15 +23,17 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            
-            // Cek jika user adalah admin (asumsi ada kolom role di tabel users)
+
+            // Logika Redirect Berdasarkan Role
             if (Auth::user()->role == 'admin') {
                 return redirect()->intended('/admin/dashboard');
+            } elseif (Auth::user()->role == 'guru') {
+                return redirect()->intended('/guru/dashboard');
             }
-            
-            return redirect()->intended('/dashboard');
-        }
 
+            // Default jika role tidak dikenal
+            return redirect('/');
+        }
         return back()->withErrors(['email' => 'Email atau password salah!']);
     }
 
