@@ -3,40 +3,74 @@
 @section('title', 'Dashboard Utama')
 
 @section('content')
-<div class="row g-4">
-    <div class="col-12 col-md-6 col-lg-3">
-        <div class="card card-stats p-3">
+<div class="row g-4 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
             <div class="d-flex align-items-center">
-                <div class="p-3 bg-success bg-opacity-10 text-success rounded-3 me-3">
-                    <i class="bi bi-book fs-4"></i>
+                <div class="icon-box bg-success-subtle text-success rounded-4 p-3 me-3">
+                    <i class="bi bi-book fs-3"></i>
                 </div>
                 <div>
-                    <p class="text-muted mb-0 small">Mata Pelajaran</p>
-                    <h5 class="fw-bold mb-0">12</h5>
+                    <p class="text-muted small mb-1">Mata Pelajaran</p>
+                    <h3 class="fw-bold mb-0">{{ $countSubject }}</h3>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-12 col-md-6 col-lg-3">
-        <div class="card card-stats p-3">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
             <div class="d-flex align-items-center">
-                <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-3 me-3">
-                    <i class="bi bi-people fs-4"></i>
+                <div class="icon-box bg-warning-subtle text-warning rounded-4 p-3 me-3">
+                    <i class="bi bi-person-badge fs-3"></i>
                 </div>
                 <div>
-                    <p class="text-muted mb-0 small">Total Siswa</p>
-                    <h5 class="fw-bold mb-0">120</h5>
+                    <p class="text-muted small mb-1">Total Guru</p>
+                    <h3 class="fw-bold mb-0">{{ $countGuru }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+            <div class="d-flex align-items-center">
+                <div class="icon-box bg-primary-subtle text-primary rounded-4 p-3 me-3">
+                    <i class="bi bi-people fs-3"></i>
+                </div>
+                <div>
+                    <p class="text-muted small mb-1">Total Siswa</p>
+                    <h3 class="fw-bold mb-0">{{ $countSiswa }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+            <div class="d-flex align-items-center">
+                <div class="icon-box bg-danger-subtle text-danger rounded-4 p-3 me-3">
+                    <i class="bi bi-door-open fs-3"></i>
+                </div>
+                <div>
+                    <p class="text-muted small mb-1">Total Kelas</p>
+                    <h3 class="fw-bold mb-0">{{ $countKelas }}</h3>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="mt-4">
-    <div class="card border-0 shadow-sm p-4 rounded-4">
-        <h5 class="fw-bold">Selamat Datang, Fani!</h5>
-        <p class="text-muted">Ini adalah pusat kendali sistem CBT MTs Al Huda Pamegatan. Silakan gunakan navigasi di sebelah kiri untuk mengelola data ujian.</p>
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h5 class="fw-bold mb-3">Informasi Sistem</h5>
+            <div class="alert alert-info border-0 rounded-3 mb-0">
+                <i class="bi bi-info-circle me-2"></i> 
+                Halo <strong>{{ Auth::user()->name }}</strong>, data statistik di atas sudah terhubung langsung dengan database. 
+                Gunakan menu di samping untuk mengelola data.
+            </div>
+        </div>
     </div>
 </div>
 @endsection

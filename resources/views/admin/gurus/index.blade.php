@@ -3,6 +3,23 @@
 @section('title', 'Data Guru')
 
 @section('content')
+@if ($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert">
+        <div class="d-flex">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <div>
+                <strong class="d-block">Ups! Ada masalah:</strong>
+                <ul class="mb-0 small">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="fw-bold mb-0 text-success">Manajemen Data Guru</h4>

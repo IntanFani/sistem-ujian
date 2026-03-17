@@ -30,8 +30,29 @@
             <li class="{{ request()->is('admin/gurus*') ? 'active' : '' }}">
                 <a href="{{ route('admin.gurus.index') }}"> <i class="bi bi-people"></i> Manajemen Guru</a>
             </li>
-            <li>
-                <a href="#"><i class="bi bi-people"></i> Data Siswa</a>
+            <li class="nav-item" style="white-space: nowrap;">
+                <a class="nav-link {{ request()->is('admin/kelas*', 'admin/siswas*') ? '' : 'collapsed' }} d-flex justify-content-between align-items-center" data-bs-toggle="collapse" 
+                    href="#menuSiswa" role="button" aria-expanded="{{ request()->is('admin/kelas*', 'admin/siswas*') ? 'true' : 'false' }}">
+                    <span>
+                        <i class="bi bi-people-fill"></i>Manajemen Siswa
+                    </span>
+                    <i class="bi bi-chevron-down small toggle-icon" style="font-size: 11px; margin-right: -5px;"></i>
+                </a>
+                
+                <div class="collapse {{ request()->is('admin/kelas*', 'admin/siswas*') ? 'show' : '' }}" id="menuSiswa">
+                    <ul class="nav flex-column ms-4 small sub-menu">
+                        <li class="nav-item {{ request()->is('admin/kelas*') ? 'active-sub' : '' }}">
+                            <a class="nav-link py-2" href="{{ route('admin.kelas.index') }}">
+                                <i class="bi bi-door-open me-2"></i> Data Kelas
+                            </a>
+                        </li>
+                        <li class="nav-item {{ request()->is('admin/siswas*') ? 'active-sub' : '' }}">
+                            <a class="nav-link py-2" href="{{ route('admin.siswas.index') }}">
+                                <i class="bi bi-person-badge me-2"></i> Data Siswa
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </li>
             <li>
                 <a href="#"><i class="bi bi-file-earmark-text"></i> Bank Soal</a>

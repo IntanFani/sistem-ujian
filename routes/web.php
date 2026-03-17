@@ -4,10 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\GuruController;
+use App\Http\Controllers\Admin\DashboardController;
 
-Route::get('/', function () {
-    return redirect('/login');
-});
+Route::get('/', function () { return redirect('/login');});
 
 // Route untuk Login
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -18,9 +17,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware(['auth'])->group(function () {
     
     // Dashboard Admin
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     //Route untuk manajemen mapel
     Route::get('/admin/subjects', [SubjectController::class, 'index'])->name('admin.subjects.index');
@@ -32,4 +29,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('/admin/gurus', GuruController::class)->names('admin.gurus');
     Route::put('/admin/gurus/{id}/reset-password', [GuruController::class, 'resetPassword'])->name('admin.gurus.reset');
 
+    //Route untuk manajemen kelas
+    Route::resource('/admin/kelas', App\Http\Controllers\Admin\KelasController::class)->names('admin.kelas');
+
+    //Route untuk manajemen siswa
+    Route::resource('/admin/siswas', App\Http\Controllers\Admin\SiswaController::class)->names('admin.siswas');
 });

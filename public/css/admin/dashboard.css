@@ -50,6 +50,7 @@ body {
 #sidebar ul li a i { margin-right: 15px; font-size: 1.2rem; }
 
 .sidebar-footer { margin-top: auto; padding: 20px; }
+
 .btn-logout { 
     width: 100%; 
     border-radius: 10px; 
