@@ -58,6 +58,9 @@
             <li class="{{ request()->is('guru/exams*') ? 'active' : '' }}">
                 <a href="{{ route('guru.exams.index') }}"><i class="bi bi-calendar-check"></i> Manajemen Ujian</a>
             </li>
+            <li class="{{ request()->is('guru/results*') ? 'active' : '' }}">
+                <a href="{{ route('guru.results.index') }}"><i class="bi bi-person-check"></i> Hasil Ujian Siswa</a>
+            </li>
         @endif
     </ul>
 

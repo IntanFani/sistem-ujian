@@ -55,6 +55,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/exams/{id}/questions', [ExamController::class, 'manageQuestions'])->name('exams.questions');
         Route::post('/exams/{id}/questions', [ExamController::class, 'storeQuestions'])->name('exams.questions.store');
         Route::delete('/exams/{id}/questions/remove', [ExamController::class, 'removeQuestion'])->name('exams.questions.remove');
+        Route::get('/exams/{id}/monitor', [ExamController::class, 'monitor'])->name('exams.monitor');
+        Route::get('/results', [ExamController::class, 'results'])->name('results.index');
+        Route::get('/results/{id}', [ExamController::class, 'showResult'])->name('results.show');
     });
 
 });

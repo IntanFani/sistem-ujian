@@ -7,6 +7,7 @@ use App\Models\Exam;
 use App\Models\Subject;
 use App\Models\Kelas;
 use App\Models\Question;
+use App\Models\ExamSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -99,5 +100,45 @@ class ExamController extends Controller
         $exam->questions()->detach($request->question_id);
 
         return back()->with('success', 'Soal berhasil dihapus dari ujian!');
+    }
+
+    public function monitor($id)
+    {
+        // Ambil detail ujian
+        $exam = Exam::with(['kelas', 'subject'])->findOrFail($id);
+
+        // Ambil status siswa dari tabel exam_sessions (asumsi kamu punya relasi ke Siswa)
+        // Kita filter berdasarkan ujian ini
+        $statusSiswa = \App\Models\ExamSession::where('exam_id', $id)
+            ->with('siswa')
+            ->get();
+
+        return view('guru.exams.monitor', compact('exam', 'statusSiswa'));
+    }
+
+    public function results()
+{
+    $guruId = Auth::user()->guru->id;
+    // Ambil daftar ujian yang sudah pernah dibuat guru ini
+    $exams = Exam::where('guru_id', $guruId)
+                ->with(['subject', 'kelas'])
+                ->withCount('questions') // Biar tahu total soalnya berapa
+                ->latest()
+                ->get();
+
+    return view('guru.results.index', compact('exams'));
+}
+
+    public function showResult($id)
+    {
+        // Ambil detail ujian dan hasil kerja siswa dari tabel exam_sessions
+        $exam = Exam::with(['subject', 'kelas'])->findOrFail($id);
+        
+        $results = ExamSession::where('exam_id', $id)
+                    ->with('siswa')
+                    ->orderBy('score', 'desc') // Urutkan dari nilai tertinggi
+                    ->get();
+
+        return view('guru.results.show', compact('exam', 'results'));
     }
 }
