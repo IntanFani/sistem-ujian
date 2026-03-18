@@ -60,4 +60,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/results/{id}', [ExamController::class, 'showResult'])->name('results.show');
     });
 
+    // Group untuk Siswa
+    Route::middleware(['auth', 'checkRole:siswa'])->prefix('siswa')->name('siswa.')->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\Siswa\ExamController::class, 'index'])->name('dashboard');
+        
+        // Route untuk mulai ujian (Verifikasi Token)
+        Route::post('/exams/{id}/start', [App\Http\Controllers\Siswa\ExamController::class, 'start'])->name('exams.start');
+    
+        // Route untuk halaman pengerjaan soal (Halaman Utama Ujian)
+        Route::get('/exams/{id}/show', [App\Http\Controllers\Siswa\ExamController::class, 'show'])->name('exams.show');
+    });
+
 });

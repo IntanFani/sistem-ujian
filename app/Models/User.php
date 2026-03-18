@@ -3,10 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+
 
 class User extends Authenticatable
 {
@@ -49,8 +49,14 @@ class User extends Authenticatable
     }
 
     public function guru()
-{
-    // Asumsi di tabel gurus ada kolom user_id
-    return $this->hasOne(Guru::class, 'user_id'); 
-}
+    {
+        // Asumsi di tabel gurus ada kolom user_id
+        return $this->hasOne(Guru::class, 'user_id'); 
+    }
+
+    public function siswa()
+    {
+        // User punya satu data di tabel Siswa
+        return $this->hasOne(Siswa::class, 'user_id');
+    }
 }

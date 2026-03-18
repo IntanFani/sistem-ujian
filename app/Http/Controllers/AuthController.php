@@ -29,6 +29,8 @@ class AuthController extends Controller
                 return redirect()->intended('/admin/dashboard');
             } elseif (Auth::user()->role == 'guru') {
                 return redirect()->intended('/guru/dashboard');
+            } elseif (Auth::user()->role == 'siswa') {
+                return redirect()->intended('/siswa/dashboard');
             }
 
             // Default jika role tidak dikenal

@@ -109,7 +109,7 @@ class ExamController extends Controller
 
         // Ambil status siswa dari tabel exam_sessions (asumsi kamu punya relasi ke Siswa)
         // Kita filter berdasarkan ujian ini
-        $statusSiswa = \App\Models\ExamSession::where('exam_id', $id)
+        $statusSiswa = ExamSession::where('exam_id', $id)
             ->with('siswa')
             ->get();
 

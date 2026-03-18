@@ -6,15 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class ExamSession extends Model
 {
-    protected $fillable = ['exam_id', 'siswa_id', 'start_time', 'end_time', 'status', 'score'];
+    protected $fillable = ['exam_id', 'user_id', 'started_at', 'score', 'created_at', 'updated_at'];
 
-    // Relasi ke Siswa
-    public function siswa() {
-        return $this->belongsTo(Siswa::class);
+     /**
+     * Relasi ke User
+     * Satu sesi ujian dimiliki oleh satu user
+     */
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
-    // Relasi ke Ujian
-    public function exam() {
+    public function exam()
+    {
         return $this->belongsTo(Exam::class);
     }
 }
