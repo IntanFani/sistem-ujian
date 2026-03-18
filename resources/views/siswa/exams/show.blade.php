@@ -337,8 +337,28 @@
         }, 1000);
 
         function finishExam() {
-            if (confirm("Apakah Anda yakin ingin mengakhiri ujian?")) {
-                window.location.href = "{{ route('siswa.dashboard') }}";
+            if (confirm("Apakah Anda yakin ingin mengakhiri ujian? Jawaban tidak bisa diubah lagi.")) {
+
+                // Kirim permintaan ke server pake Fetch API (AJAX)
+                fetch("{{ route('siswa.exams.finish', $exam->id) }}", {
+                        method: "POST",
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Kalau sukses, lempar ke dashboard
+                            window.location.href = "{{ route('siswa.dashboard') }}?status=success";
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        alert("Gagal mengakhiri ujian, coba cek koneksi internet!");
+                    });
             }
         }
 

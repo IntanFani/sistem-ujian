@@ -13,12 +13,14 @@ class ExamController extends Controller
 {
     public function index()
     {
-        // Ambil data siswa yang login
-        $siswa = Auth::user()->siswa; 
+        $siswa = Auth::user()->siswa;
+        $userId = Auth::id();
         
-        // Ambil ujian yang tersedia untuk KELAS siswa ini
+        // Ambil ujian, sekaligus cek apakah user ini punya session di ujian tersebut
         $exams = Exam::where('kelas_id', $siswa->kelas_id)
-                    ->with('subject')
+                    ->with(['subject', 'exam_sessions' => function($q) use ($userId) {
+                        $q->where('user_id', $userId);
+                    }])
                     ->latest()
                     ->get();
 
@@ -40,7 +42,7 @@ class ExamController extends Controller
                             ->where('user_id', $userId) // Ganti ke user_id
                             ->first();
 
-        if ($session && $session->status == 'finished') {
+        if ($session->completed_at) {
             return redirect()->route('siswa.dashboard')->with('error', 'Ujian sudah selesai.');
         }
 
@@ -48,7 +50,7 @@ class ExamController extends Controller
             ExamSession::create([
                 'exam_id' => $id,
                 'user_id' => $userId, // Simpan sebagai user_id
-                'start_time' => now(),
+                'started_at' => now(),
                 'status' => 'started'
             ]);
         }
@@ -67,10 +69,27 @@ class ExamController extends Controller
                             ->firstOrFail();
 
         // Jika sudah selesai, jangan kasih masuk lagi
-        if ($session->status == 'finished') {
-            return redirect()->route('siswa.dashboard')->with('error', 'Ujian ini sudah selesai.');
+        if ($session->completed_at) {
+            return redirect()->route('siswa.dashboard')->with('error', 'Ujian sudah selesai.');
         }
 
         return view('siswa.exams.show', compact('exam', 'session'));
+    }
+
+    public function finish($id)
+    {
+        $session = ExamSession::where('exam_id', $id)
+                            ->where('user_id', Auth::id())
+                            ->firstOrFail();
+
+        // Update kolom completed_at dengan waktu sekarang
+        $session->update([
+            'completed_at' => now(), 
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Ujian selesai!'
+        ]);
     }
 }

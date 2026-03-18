@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Guru\DashboardController as GuruDashboard;
 use App\Http\Controllers\Guru\ExamController;
+use App\Http\Controllers\Siswa\ExamController as SiswaExamContrr;
 
 // Redirection awal
 Route::get('/', function () { return redirect('/login'); });
@@ -48,7 +49,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [GuruDashboard::class, 'index'])->name('dashboard');
         
         // Rute Bank Soal Khusus Guru
-        Route::resource('/questions', App\Http\Controllers\Guru\QuestionController::class)->names('questions');
+        Route::resource('/questions', QuestionController::class)->names('questions');
 
         // Route Manajemen ujian
         Route::resource('/exams', ExamController::class);
@@ -69,6 +70,7 @@ Route::middleware(['auth'])->group(function () {
     
         // Route untuk halaman pengerjaan soal (Halaman Utama Ujian)
         Route::get('/exams/{id}/show', [App\Http\Controllers\Siswa\ExamController::class, 'show'])->name('exams.show');
+        Route::post('/exams/{id}/finish', [App\Http\Controllers\Siswa\ExamController::class, 'finish'])->name('exams.finish');
     });
 
 });

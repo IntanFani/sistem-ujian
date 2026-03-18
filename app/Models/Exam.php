@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+
 
 class Exam extends Model
 {
@@ -31,5 +31,11 @@ class Exam extends Model
     public function questions()
     {
         return $this->belongsToMany(Question::class, 'exam_question');
+    }
+
+    public function exam_sessions()
+    {
+        // Satu Ujian bisa punya banyak Sesi (hasMany)
+        return $this->hasMany(ExamSession::class);
     }
 }
