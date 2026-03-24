@@ -60,18 +60,20 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/exams/{id}/monitor', [ExamController::class, 'monitor'])->name('exams.monitor');
         Route::get('/results', [ExamController::class, 'results'])->name('results.index');
         Route::get('/results/{id}', [ExamController::class, 'showResult'])->name('results.show');
+        Route::delete('/exams/sessions/{id}/reset', [ExamController::class, 'resetSession'])->name('exams.reset-session');
+        Route::delete('/exams/{id}/reset-all', [ExamController::class, 'resetAllSessions'])->name('exams.reset-all');
     });
 
     // Group untuk Siswa
     Route::middleware(['auth', 'checkRole:siswa'])->prefix('siswa')->name('siswa.')->group(function () {
-        Route::get('/dashboard', [App\Http\Controllers\Siswa\ExamController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [SiswaExamController::class, 'index'])->name('dashboard');
         
         // Route untuk mulai ujian (Verifikasi Token)
-        Route::post('/exams/{id}/start', [App\Http\Controllers\Siswa\ExamController::class, 'start'])->name('exams.start');
+        Route::post('/exams/{id}/start', [SiswaExamController::class, 'start'])->name('exams.start');
     
         // Route untuk halaman pengerjaan soal (Halaman Utama Ujian)
         Route::get('/exams/{id}/show', [SiswaExamController::class, 'show'])->name('exams.show');
-       Route::post('/exams/save-answer', [SiswaExamController::class, 'saveAnswer'])->name('exams.save-answer');
+        Route::post('/exams/save-answer', [SiswaExamController::class, 'saveAnswer'])->name('exams.save-answer');
         Route::post('/exams/{id}/finish', [SiswaExamController::class, 'finish'])->name('exams.finish');
     });
 

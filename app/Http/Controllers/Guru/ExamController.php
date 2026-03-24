@@ -124,4 +124,39 @@ class ExamController extends Controller
 
         return view('guru.results.show', compact('exam', 'results'));
     }
+
+    public function resetSession($id)
+    {
+        // Cari session berdasarkan ID
+        $session = ExamSession::findOrFail($id);
+
+        // Keamanan: Pastikan guru yang login adalah pemilik ujian ini
+        if ($session->exam->guru_id !== Auth::user()->guru->id) {
+            return back()->with('error', 'Anda tidak memiliki akses untuk meriset sesi ini.');
+        }
+
+        // Hapus sesi (Jika migrasi kamu pake onDelete('cascade'), 
+        // maka jawaban di exam_answers bakal ikut terhapus otomatis)
+        $session->delete();
+
+        return back()->with('success', 'Sesi ujian siswa berhasil direset. Siswa bisa login dan mengulangi ujian.');
+    }
+
+    public function resetAllSessions($id)
+    {
+        // 1. Pastikan ujian ini memang milik guru yang login (Security)
+        $exam = Exam::where('id', $id)
+                    ->where('guru_id', Auth::user()->guru->id)
+                    ->firstOrFail();
+
+        // 2. Hapus SEMUA sesi siswa untuk ujian ini
+        // Ini akan menghapus baris di exam_sessions yang exam_id-nya sesuai
+        $deletedCount = ExamSession::where('exam_id', $id)->delete();
+
+        if ($deletedCount > 0) {
+            return back()->with('success', "Berhasil meriset $deletedCount sesi ujian. Semua siswa sekarang bisa mengulang dari awal.");
+        }
+
+        return back()->with('info', 'Tidak ada sesi ujian yang perlu diriset.');
+    }
 }

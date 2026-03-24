@@ -12,13 +12,23 @@
                 <h4 class="fw-bold mb-1">Hasil: {{ $exam->title }}</h4>
                 <p class="text-muted small">{{ $exam->subject->name }} | Kelas {{ $exam->kelas->nama_kelas }}</p>
             </div>
-            <button class="btn btn-outline-success rounded-pill px-4">
-                <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
-            </button>
+            <div class="me-3 d-flex justify-content-end">
+                <form action="{{ route('guru.exams.reset-all', $exam->id) }}" method="POST"
+                    onsubmit="return confirm('PERINGATAN KERAS! Anda akan menghapus SELURUH jawaban siswa untuk ujian ini. Semua siswa harus mengulang dari awal. Lanjutkan?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="me-3 btn btn-danger rounded-pill shadow-sm">
+                        <i class="bi bi-trash3-fill me-1"></i> Reset Semua Sesi Ujian
+                    </button>
+                </form>
+                <button class="btn btn-outline-success rounded-pill px-4">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+                </button>
+            </div>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-4">
+    <div class="card border-0 shadow-sm rounded-5">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
@@ -29,6 +39,7 @@
                             <th class="text-center">NISN</th>
                             <th class="text-center">Status</th>
                             <th class="text-center">Nilai Akhir</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -70,6 +81,16 @@
                                     <span class="fs-5 fw-bold {{ $res->score >= 75 ? 'text-success' : 'text-danger' }}">
                                         {{ $res->score ?? 0 }}
                                     </span>
+                                </td>
+                                <td class="text-center">
+                                    <form action="{{ route('guru.exams.reset-session', $res->id) }}" method="POST"
+                                        onsubmit="return confirm('Apakah Anda yakin? Semua jawaban siswa ini akan DIHAPUS PERMANEN dan siswa harus mengulang dari awal.')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill shadow-sm">
+                                            <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         @empty
