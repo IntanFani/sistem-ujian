@@ -5,12 +5,13 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\GuruController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Guru\DashboardController as GuruDashboard;
 use App\Http\Controllers\Guru\ExamController;
-use App\Http\Controllers\Siswa\ExamController as SiswaExamContrr;
+use App\Http\Controllers\Siswa\ExamController as SiswaExamController;
+use App\Http\Controllers\Admin\QuestionController as AdminQuestion;
+use App\Http\Controllers\Guru\QuestionController as GuruQuestion;
 
 // Redirection awal
 Route::get('/', function () { return redirect('/login'); });
@@ -41,7 +42,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/siswas', SiswaController::class)->names('siswas');
 
         // Bank Soal Admin
-        Route::resource('/questions', QuestionController::class)->names('questions');
+        Route::resource('/questions', AdminQuestion::class)->names('questions');
     });
 
     // --- GROUP KHUSUS GURU ---
@@ -49,7 +50,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [GuruDashboard::class, 'index'])->name('dashboard');
         
         // Rute Bank Soal Khusus Guru
-        Route::resource('/questions', QuestionController::class)->names('questions');
+        Route::resource('/questions', GuruQuestion::class)->names('questions');
 
         // Route Manajemen ujian
         Route::resource('/exams', ExamController::class);
@@ -69,8 +70,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/exams/{id}/start', [App\Http\Controllers\Siswa\ExamController::class, 'start'])->name('exams.start');
     
         // Route untuk halaman pengerjaan soal (Halaman Utama Ujian)
-        Route::get('/exams/{id}/show', [App\Http\Controllers\Siswa\ExamController::class, 'show'])->name('exams.show');
-        Route::post('/exams/{id}/finish', [App\Http\Controllers\Siswa\ExamController::class, 'finish'])->name('exams.finish');
+        Route::get('/exams/{id}/show', [SiswaExamController::class, 'show'])->name('exams.show');
+       Route::post('/exams/save-answer', [SiswaExamController::class, 'saveAnswer'])->name('exams.save-answer');
+        Route::post('/exams/{id}/finish', [SiswaExamController::class, 'finish'])->name('exams.finish');
     });
 
 });

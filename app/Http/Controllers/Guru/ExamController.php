@@ -18,13 +18,11 @@ class ExamController extends Controller
     {
         $guruId = Auth::user()->guru->id;
         
-        // Ambil ujian milik guru yang login
         $exams = Exam::where('guru_id', $guruId)
             ->with(['subject', 'kelas'])
             ->latest()
             ->get();
 
-        // Data untuk dropdown di modal
         $subjects = Subject::all();
         $kelas = Kelas::all();
 
@@ -50,18 +48,16 @@ class ExamController extends Controller
             'duration' => $request->duration,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
-            'token' => strtoupper(Str::random(6)), // Generate token otomatis
+            'token' => strtoupper(Str::random(6)),
         ]);
 
         return back()->with('success', 'Jadwal ujian berhasil dibuat!');
     }
 
-    // Menampilkan halaman pilih soal
     public function manageQuestions($id)
     {
         $exam = Exam::with('questions')->findOrFail($id);
         
-        // Ambil bank soal milik guru ini yang BELUM ada di ujian ini
         $bankSoal = Question::where('guru_id', Auth::user()->guru->id)
                     ->where('subject_id', $exam->subject_id)
                     ->whereDoesntHave('exams', function($query) use ($id) {
@@ -71,72 +67,59 @@ class ExamController extends Controller
         return view('guru.exams.manage_questions', compact('exam', 'bankSoal'));
     }
 
-    // Menyimpan soal yang dipilih ke ujian
     public function storeQuestions(Request $request, $id)
     {
         $exam = Exam::findOrFail($id);
-        
-        // Menempelkan (attach) soal-soal yang dipilih
         $exam->questions()->attach($request->question_ids);
-
-        return back()->with('success', 'Soal berhasil ditambahkan ke ujian!');
+        return back()->with('success', 'Soal berhasil ditambahkan!');
     }
 
     public function destroy($id)
     {
-        // Pastikan guru hanya bisa menghapus jadwal miliknya sendiri (Security Check)
         $exam = Exam::where('guru_id', Auth::user()->guru->id)->findOrFail($id);
-        
         $exam->delete();
-
         return back()->with('success', 'Jadwal ujian berhasil dihapus!');
     }
 
     public function removeQuestion(Request $request, $id)
     {
         $exam = Exam::findOrFail($id);
-        
-        // Melepaskan (detach) satu soal dari ujian
         $exam->questions()->detach($request->question_id);
-
         return back()->with('success', 'Soal berhasil dihapus dari ujian!');
     }
 
+    // PERBAIKAN: Fungsi Monitor (Variabel disamakan & Relasi diperbaiki)
     public function monitor($id)
     {
-        // Ambil detail ujian
         $exam = Exam::with(['kelas', 'subject'])->findOrFail($id);
 
-        // Ambil status siswa dari tabel exam_sessions (asumsi kamu punya relasi ke Siswa)
-        // Kita filter berdasarkan ujian ini
-        $statusSiswa = ExamSession::where('exam_id', $id)
-            ->with('siswa')
+        $sessions = ExamSession::where('exam_id', $id)
+            ->with('user.siswa') // Menggunakan jembatan user
             ->get();
 
-        return view('guru.exams.monitor', compact('exam', 'statusSiswa'));
+        return view('guru.exams.monitor', compact('exam', 'sessions'));
     }
 
     public function results()
-{
-    $guruId = Auth::user()->guru->id;
-    // Ambil daftar ujian yang sudah pernah dibuat guru ini
-    $exams = Exam::where('guru_id', $guruId)
-                ->with(['subject', 'kelas'])
-                ->withCount('questions') // Biar tahu total soalnya berapa
-                ->latest()
-                ->get();
+    {
+        $guruId = Auth::user()->guru->id;
+        $exams = Exam::where('guru_id', $guruId)
+                    ->with(['subject', 'kelas'])
+                    ->withCount('questions')
+                    ->latest()
+                    ->get();
 
-    return view('guru.results.index', compact('exams'));
-}
+        return view('guru.results.index', compact('exams'));
+    }
 
+    // PERBAIKAN: Fungsi Show Result (Relasi diperbaiki)
     public function showResult($id)
     {
-        // Ambil detail ujian dan hasil kerja siswa dari tabel exam_sessions
         $exam = Exam::with(['subject', 'kelas'])->findOrFail($id);
         
         $results = ExamSession::where('exam_id', $id)
-                    ->with('siswa')
-                    ->orderBy('score', 'desc') // Urutkan dari nilai tertinggi
+                    ->with('user.siswa') // Menggunakan jembatan user
+                    ->orderBy('score', 'desc')
                     ->get();
 
         return view('guru.results.show', compact('exam', 'results'));

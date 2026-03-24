@@ -37,9 +37,6 @@
                                 <button class="btn btn-secondary rounded-pill fw-bold py-2 shadow-sm" disabled>
                                     <i class="bi bi-check-all me-1"></i> Ujian Selesai
                                 </button>
-                                <div class="text-center mt-2">
-                                    <span class="badge bg-light text-dark border">Sudah dikerjakan</span>
-                                </div>
 
                                 {{-- Cek: Kalau ada session tapi completed_at masih NULL, berarti lagi ngerjain --}}
                             @elseif($session && !$session->completed_at)

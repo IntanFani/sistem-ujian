@@ -1,4 +1,4 @@
-@extends('layouts.admin') {{-- Pakai layout yang sama tapi nanti sidebar-nya kita bedakan --}}
+@extends('layouts.admin') 
 
 @section('title', 'Dashboard Guru')
 

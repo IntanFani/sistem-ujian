@@ -50,13 +50,13 @@ class User extends Authenticatable
 
     public function guru()
     {
-        // Asumsi di tabel gurus ada kolom user_id
         return $this->hasOne(Guru::class, 'user_id'); 
     }
 
     public function siswa()
     {
-        // User punya satu data di tabel Siswa
         return $this->hasOne(Siswa::class, 'user_id');
     }
+
+
 }

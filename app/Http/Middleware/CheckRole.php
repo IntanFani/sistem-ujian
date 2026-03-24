@@ -8,11 +8,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
-    public function handle(Request $request, Closure $next, $role): Response
+    public function handle($request, Closure $next, $role)
     {
-        // Jika user belum login atau role-nya tidak sesuai dengan yang diminta
-        if (!$request->user() || $request->user()->role !== $role) {
-            abort(403, 'Maaf, halaman ini khusus untuk ' . $role);
+        // Cek apakah user sudah login
+        if (!$request->user()) {
+            abort(401);
+        }
+
+        // Kita paksa keduanya jadi huruf kecil sebelum dibandingkan
+        if (strtolower($request->user()->role) != strtolower($role)) {
+            abort(403, 'Maaf, halaman ini khusus untuk role ' . $role);
         }
 
         return $next($request);

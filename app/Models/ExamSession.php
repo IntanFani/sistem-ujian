@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ExamSession extends Model
 {
-    protected $fillable = ['exam_id', 'user_id', 'started_at', 'score', 'created_at', 'updated_at'];
+    protected $fillable = ['exam_id', 'user_id', 'started_at', 'completed_at', 'score', 'created_at', 'updated_at'];
 
      /**
      * Relasi ke User
@@ -15,11 +15,17 @@ class ExamSession extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function exam()
     {
-        return $this->belongsTo(Exam::class);
+        return $this->belongsTo(Exam::class, 'exam_id');
     }
+
+    public function answers()
+    {
+        return $this->hasMany(ExamAnswer::class);
+    }
+
 }
