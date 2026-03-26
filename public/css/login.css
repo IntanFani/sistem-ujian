@@ -139,6 +139,18 @@ body {
     color: #99a;
 }
 
+/* Pastikan border merah terlihat jelas */
+.form-control.is-invalid {
+    border-color: #dc3545 !important;
+    background-image: none !important; /* Menghilangkan ikon tanda seru bawaan bootstrap jika mengganggu */
+}
+
+.text-danger {
+    color: #dc3545;
+    margin-top: 5px;
+    display: block;
+}
+
 /* --- RESPONSIVE MODE --- */
 @media (max-width: 992px) {
     /* Menghilangkan panel hijau di layar HP/Tablet kecil */

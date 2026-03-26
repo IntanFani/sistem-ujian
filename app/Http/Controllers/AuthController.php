@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -36,7 +37,16 @@ class AuthController extends Controller
             // Default jika role tidak dikenal
             return redirect('/');
         }
-        return back()->withErrors(['email' => 'Email atau password salah!']);
+        // --- LOGIKA CEK ERROR SPESIFIK ---
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            // Jika email tidak ditemukan
+            return back()->withErrors(['email' => 'Email ini salah atau tidak terdaftar.'])->withInput();
+        } else {
+            // Jika email ada tapi password salah
+            return back()->withErrors(['password' => 'Password yang Anda masukkan salah.'])->withInput();
+        }
     }
 
     // Proses logout
