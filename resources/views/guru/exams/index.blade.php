@@ -48,9 +48,6 @@
                     <a href="{{ route('guru.exams.questions', $exam->id) }}" class="btn btn-outline-success btn-sm rounded-pill">
                         <i class="bi bi-list-check me-1"></i> Kelola Soal ({{ $exam->questions_count ?? $exam->questions->count() }})
                     </a>
-                    <a href="{{ route('guru.exams.monitor', $exam->id) }}" class="btn btn-primary btn-sm rounded-pill">
-                        <i class="bi bi-display me-1"></i> Monitor Ujian
-                    </a>
                     <button class="btn btn-link btn-sm text-danger text-decoration-none" onclick="hapusUjian('{{ $exam->id }}')">
                         <i class="bi bi-trash me-1"></i> Hapus Jadwal
                     </button>

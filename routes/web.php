@@ -57,11 +57,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/exams/{id}/questions', [ExamController::class, 'manageQuestions'])->name('exams.questions');
         Route::post('/exams/{id}/questions', [ExamController::class, 'storeQuestions'])->name('exams.questions.store');
         Route::delete('/exams/{id}/questions/remove', [ExamController::class, 'removeQuestion'])->name('exams.questions.remove');
-        Route::get('/exams/{id}/monitor', [ExamController::class, 'monitor'])->name('exams.monitor');
         Route::get('/results', [ExamController::class, 'results'])->name('results.index');
         Route::get('/results/{id}', [ExamController::class, 'showResult'])->name('results.show');
         Route::delete('/exams/sessions/{id}/reset', [ExamController::class, 'resetSession'])->name('exams.reset-session');
         Route::delete('/exams/{id}/reset-all', [ExamController::class, 'resetAllSessions'])->name('exams.reset-all');
+        Route::get('/exams/{id}/export-excel', [ExamController::class, 'exportExcel'])->name('exams.export-excel');
     });
 
     // Group untuk Siswa

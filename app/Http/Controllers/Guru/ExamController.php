@@ -11,6 +11,8 @@ use App\Models\ExamSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use App\Exports\ExamResultsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ExamController extends Controller
 {
@@ -88,18 +90,6 @@ class ExamController extends Controller
         return back()->with('success', 'Soal berhasil dihapus dari ujian!');
     }
 
-    // PERBAIKAN: Fungsi Monitor (Variabel disamakan & Relasi diperbaiki)
-    public function monitor($id)
-    {
-        $exam = Exam::with(['kelas', 'subject'])->findOrFail($id);
-
-        $sessions = ExamSession::where('exam_id', $id)
-            ->with('user.siswa') // Menggunakan jembatan user
-            ->get();
-
-        return view('guru.exams.monitor', compact('exam', 'sessions'));
-    }
-
     public function results()
     {
         $guruId = Auth::user()->guru->id;
@@ -158,5 +148,13 @@ class ExamController extends Controller
         }
 
         return back()->with('info', 'Tidak ada sesi ujian yang perlu diriset.');
+    }
+
+    public function exportExcel($id)
+    {
+        $exam = Exam::findOrFail($id);
+        $namaFile = 'Hasil_Ujian_' . str_replace(' ', '_', $exam->title) . '.xlsx';
+        
+        return Excel::download(new ExamResultsExport($id), $namaFile);
     }
 }

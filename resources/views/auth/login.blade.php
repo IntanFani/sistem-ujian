@@ -22,6 +22,7 @@
             <h4>Sistem Informasi Ujian Terintegrasi<br>MTs Al Huda Pamegatan</h4>
             <!-- <hr class="mb-4" style="opacity: 0.1"> -->
 
+            
             <form action="{{ route('login.post') }}" method="POST">
                 @csrf
                 <div class="form-group">

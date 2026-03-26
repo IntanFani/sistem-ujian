@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ExamSession extends Model
 {
     protected $fillable = ['exam_id', 'user_id', 'started_at', 'completed_at', 'score', 'created_at', 'updated_at'];
-
+    
      /**
      * Relasi ke User
      * Satu sesi ujian dimiliki oleh satu user

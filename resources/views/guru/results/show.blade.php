@@ -21,9 +21,9 @@
                         <i class="bi bi-trash3-fill me-1"></i> Reset Semua Sesi Ujian
                     </button>
                 </form>
-                <button class="btn btn-outline-success rounded-pill px-4">
-                    <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
-                </button>
+                <a href="{{ route('guru.exams.export-excel', $exam->id) }}" class="btn btn-outline-success rounded-pill px-4">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Download Excel
+                </a>
             </div>
         </div>
     </div>
