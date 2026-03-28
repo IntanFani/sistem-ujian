@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Guru;
 use App\Http\Controllers\Controller;
 use App\Models\Question;
 use App\Models\Subject;
+use App\Imports\QuestionsImport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -86,5 +88,17 @@ class QuestionController extends Controller
         $question->delete();
 
         return back()->with('success', 'Soal berhasil dihapus!');
+    }
+
+    public function import(Request $request) 
+    {
+        $request->validate([
+            'subject_id' => 'required|exists:subjects,id',
+            'file_excel' => 'required|mimes:xlsx,xls'
+        ]);
+
+        Excel::import(new QuestionsImport($request->subject_id), $request->file('file_excel'));
+        
+        return back()->with('success', 'Data soal berhasil diimport!');
     }
 }

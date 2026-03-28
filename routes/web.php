@@ -51,6 +51,7 @@ Route::middleware(['auth'])->group(function () {
         
         // Rute Bank Soal Khusus Guru
         Route::resource('/questions', GuruQuestion::class)->names('questions');
+        Route::post('/questions/import', [GuruQuestion::class, 'import'])->name('questions.import');
 
         // Route Manajemen ujian
         Route::resource('/exams', ExamController::class);
