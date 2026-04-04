@@ -8,16 +8,47 @@ use App\Models\Siswa;
 use App\Models\Kelas;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Imports\SiswaImport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 
 class SiswaController extends Controller
 {
 
+    // 1. Fungsi Index (Sesuai dengan kode asli kamu)
     public function index()
     {
+        // Pastikan load relasi 'user' juga agar email tidak error di view
         $siswas = Siswa::with(['user', 'kelas'])->get();
+        
         $kelases = Kelas::all(); // Untuk dropdown pilih kelas
+
         return view('admin.siswas.index', compact('siswas', 'kelases'));
+    }
+
+    // 2. Fungsi Proses Naik Kelas
+    public function prosesNaikKelas(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'kelas_asal' => 'required|exists:kelas,id',
+            'kelas_tujuan' => 'required|exists:kelas,id|different:kelas_asal',
+        ], [
+            'kelas_asal.required' => 'Pilih kelas asal terlebih dahulu!',
+            'kelas_tujuan.required' => 'Pilih kelas tujuan terlebih dahulu!',
+            'kelas_tujuan.different' => 'Kelas tujuan tidak boleh sama dengan kelas asal!'
+        ]);
+
+        // Proses update massal berdasarkan kelas_id
+        $jumlahSiswaDipindah = Siswa::where('kelas_id', $request->kelas_asal)
+                                    ->update(['kelas_id' => $request->kelas_tujuan]);
+
+        // Cek apakah ada data yang berhasil diupdate
+        if ($jumlahSiswaDipindah > 0) {
+            return redirect()->back()->with('success', "$jumlahSiswaDipindah siswa berhasil dipindah ke kelas baru!");
+        }
+
+        return redirect()->back()->with('error', 'Gagal dipindah! Tidak ada siswa di kelas asal yang dipilih.');
     }
 
     public function store(Request $request)
@@ -108,5 +139,19 @@ class SiswaController extends Controller
         });
 
         return back()->with('success', 'Data siswa dan akun login berhasil dihapus permanen!');
+    }
+
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file_excel' => 'required|mimes:xlsx,xls,csv|max:2048'
+        ]);
+
+        try {
+            Excel::import(new SiswaImport, $request->file('file_excel'));
+            return redirect()->back()->with('success', 'Data siswa dan akun ujian berhasil diimport!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 }

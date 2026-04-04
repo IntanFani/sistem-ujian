@@ -42,11 +42,11 @@ Route::middleware(['auth'])->group(function () {
 
         // Manajemen Kelas & Siswa
         Route::resource('/kelas', KelasController::class)->names('kelas');
+        Route::post('/siswas/naik-kelas', [SiswaController::class, 'prosesNaikKelas'])->name('siswas.naik-kelas');
+        Route::post('/siswas/import', [SiswaController::class, 'importExcel'])->name('siswas.import');
         Route::resource('/siswas', SiswaController::class)->names('siswas');
 
-        // Bank Soal Admin
-        Route::resource('/questions', AdminQuestion::class)->names('questions');
-
+       
     });
 
 

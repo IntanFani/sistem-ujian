@@ -8,9 +8,19 @@
         <h4 class="fw-bold mb-0 text-success">Manajemen Data Siswa</h4>
         <p class="text-muted small">Kelola data siswa dan akun login ujian</p>
     </div>
-    <button class="btn btn-success rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#addSiswaModal">
-        <i class="bi bi-plus-lg me-1"></i> Tambah Siswa
+    <div class="d-flex gap-2">
+    <button type="button" class="btn btn-warning text-dark fw-medium rounded-pill px-3 shadow-sm border" data-bs-toggle="modal" data-bs-target="#modalNaikKelas">
+        <i class="bi bi-arrow-up-circle me-1"></i> Naik Kelas
     </button>
+
+    <button type="button" class="btn btn-excel-outline fw-medium rounded-pill px-3 shadow-sm transition-3d" data-bs-toggle="modal" data-bs-target="#modalImportExcel">
+        <i class="bi bi-file-earmark-excel me-1"></i> Import Excel
+    </button>
+
+    <button class="btn btn-success fw-medium rounded-pill px-3 shadow-sm border" data-bs-toggle="modal" data-bs-target="#addSiswaModal">
+        + Tambah Siswa
+    </button>
+</div>
 </div>
 
 <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
@@ -170,6 +180,103 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalNaikKelas" tabindex="-1" aria-labelledby="modalNaikKelasLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-white border-0 pt-4 px-4 pb-0">
+                <div class="d-flex align-items-center">
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-4 me-3">
+                        <i class="bi bi-arrow-up-circle fs-4 text-warning"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold" id="modalNaikKelasLabel">Kenaikan Kelas Massal</h5>
+                        <p class="text-muted small mb-0">Pindahkan semua siswa dari satu kelas ke kelas lain.</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form action="{{ route('admin.siswas.naik-kelas') }}" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-2">Pilih Kelas Asal</label>
+                        <select class="form-select bg-light border-0 rounded-3 p-3 shadow-none" name="kelas_asal" required>
+                            <option value="">-- Pilih Kelas Saat Ini --</option>
+                            @foreach ($kelases as $kelas)
+                                <option value="{{ $kelas->id }}">{{ $kelas->nama_kelas }}</option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted mt-1 d-block"><i class="bi bi-info-circle me-1"></i>Semua siswa di kelas ini akan dipindahkan.</small>
+                    </div>
+
+                    <div class="mb-2 text-center text-muted">
+                        <i class="bi bi-arrow-down fs-4"></i>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-2">Pilih Kelas Tujuan</label>
+                        <select class="form-select bg-light border-0 rounded-3 p-3 shadow-none" name="kelas_tujuan" required>
+                            <option value="">-- Pilih Kelas Tujuan --</option>
+                            @foreach ($kelases as $kelas)
+                                <option value="{{ $kelas->id }}">{{ $kelas->nama_kelas }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0 gap-2">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold rounded-pill px-4 py-2 shadow-sm border-0 transition-3d">
+                        <i class="bi bi-save2-fill me-2"></i> Proses Pindah
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalImportExcel" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <h5 class="modal-title fw-bold">Import Data Siswa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('admin.siswas.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body px-4">
+                    <div class="alert alert-info py-2 small border-0 mb-4">
+                        <i class="bi bi-info-circle me-1"></i> Pastikan format Excel Anda memiliki baris judul kolom: <b>nama, nisn, kelas, email</b> pada baris pertama.
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Upload File Excel (.xlsx)</label>
+                        <input type="file" name="file_excel" class="form-control rounded-3" accept=".xlsx, .xls, .csv" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-info text-white rounded-pill px-4 fw-bold shadow-sm">Mulai Import</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Style dasar tombol: Background putih, tulisan & garis tepi hijau Excel */
+    .btn-excel-outline {
+        background-color: #ffffff;
+        color: #107c41;
+        border: 2px solid #107c41; /* Ketebalan garis bisa diubah, 1px atau 2px */
+    }
+
+    /* Style saat tombol di-hover: Background jadi hijau, tulisan jadi putih */
+    .btn-excel-outline:hover {
+        background-color: #107c41;
+        color: #ffffff;
+        border-color: #107c41;
+    }
+</style>
 @endsection
 
 @section('scripts')
