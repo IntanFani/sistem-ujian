@@ -32,7 +32,6 @@
                     <td class="px-4 text-muted">{{ $index + 1 }}</td>
                     <td>
                         <div class="fw-bold text-dark">{{ $s->nama }}</div>
-                        <small class="text-muted" style="font-size: 11px;">ID User: #{{ $s->user_id }}</small>
                     </td>
                     <td><span class="badge bg-light text-dark border">{{ $s->nisn }}</span></td>
                     <td>

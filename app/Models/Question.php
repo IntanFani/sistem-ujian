@@ -13,6 +13,7 @@ class Question extends Model
 
     // Mendefinisikan kolom yang boleh diisi
     protected $fillable = [
+        'exam_id',
         'subject_id',
         'guru_id',
         'question_text',

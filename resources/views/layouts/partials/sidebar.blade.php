@@ -45,16 +45,10 @@
                     </ul>
                 </div>
             </li>
-            <li class="{{ request()->is('admin/questions*') ? 'active' : '' }}">
-                <a href="{{ route('admin.questions.index') }}"> <i class="bi bi-file-earmark-text"></i> Bank Soal</a>
-            </li>
         @endif
 
         {{-- MENU KHUSUS GURU --}}
         @if(Auth::user()->role == 'guru')
-            <li class="{{ request()->is('guru/questions*') ? 'active' : '' }}">
-                <a href="{{ route('guru.questions.index') }}"><i class="bi bi-journal-text"></i> Soal Saya</a>
-            </li>
             <li class="{{ request()->is('guru/exams*') ? 'active' : '' }}">
                 <a href="{{ route('guru.exams.index') }}"><i class="bi bi-calendar-check"></i> Manajemen Ujian</a>
             </li>

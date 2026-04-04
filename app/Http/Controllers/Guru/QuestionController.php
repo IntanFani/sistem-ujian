@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Guru;
 use App\Http\Controllers\Controller;
 use App\Models\Question;
 use App\Models\Subject;
+use App\Models\Exam; // Tambahkan Model Exam
 use App\Imports\QuestionsImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
@@ -12,36 +13,29 @@ use Illuminate\Support\Facades\Auth;
 
 class QuestionController extends Controller
 {
-    public function index(Request $request) // Tambahkan Request untuk filter
+    // Fungsi untuk menampilkan soal-soal yang sudah ditambahkan ke ujian tertentu
+    public function index(Request $request, $exam_id) 
     {
-        $subjects = Subject::all();
-        $guru = Auth::user()->guru;
-
-        // Cek jika profile guru tidak ada (biar gak error null)
-        if (!$guru) {
-            return redirect()->route('login')->with('error', 'Profil Guru tidak ditemukan.');
-        }
-
-        $questions = Question::where('guru_id', $guru->id)
-            ->with('subject')
-            // Logika Filter Pencarian
+        // Ambil data ujian yang sedang dikelola
+        $exam = Exam::with('subject', 'kelas')->findOrFail($exam_id);
+        
+        // Ambil soal yang hanya milik ujian ini saja
+        $questions = Question::where('exam_id', $exam_id)
             ->when($request->search, function ($query) use ($request) {
                 return $query->where('question_text', 'like', '%' . $request->search . '%');
-            })
-            // Logika Filter Mapel
-            ->when($request->subject_id, function ($query) use ($request) {
-                return $query->where('subject_id', $request->subject_id);
             })
             ->latest()
             ->paginate(10);
 
-        return view('guru.questions.index', compact('questions', 'subjects'));
+        return view('guru.questions.index', compact('questions', 'exam'));
     }
 
-    public function store(Request $request)
+    // Fungsi menambahkan soal ke ujian tertentu
+    public function store(Request $request, $exam_id)
     {
+        $exam = Exam::findOrFail($exam_id);
+
         $validated = $request->validate([
-            'subject_id'    => 'required|exists:subjects,id',
             'question_text' => 'required',
             'opsi_a'        => 'required',
             'opsi_b'        => 'required',
@@ -51,20 +45,22 @@ class QuestionController extends Controller
             'jawaban_benar' => 'required|in:a,b,c,d,e',
         ]);
 
-        $validated['guru_id'] = Auth::user()->guru->id;
+        // Otomatis isi data pendukung dari data ujian dan auth
+        $validated['exam_id']    = $exam->id;
+        $validated['subject_id'] = $exam->subject_id;
+        $validated['guru_id']    = Auth::user()->id; // Sesuaikan jika relasi ke guru_id pake user_id
 
         Question::create($validated);
 
-        return back()->with('success', 'Soal berhasil disimpan!');
+        return back()->with('success', 'Soal berhasil ditambahkan ke ujian!');
     }
 
-    // FUNGSI UPDATE (Untuk Modal Edit)
+    // Fungsi update soal
     public function update(Request $request, $id)
     {
-        $question = Question::where('guru_id', Auth::user()->guru->id)->findOrFail($id);
+        $question = Question::findOrFail($id);
 
         $validated = $request->validate([
-            'subject_id'    => 'required|exists:subjects,id',
             'question_text' => 'required',
             'opsi_a'        => 'required',
             'opsi_b'        => 'required',
@@ -79,26 +75,27 @@ class QuestionController extends Controller
         return back()->with('success', 'Soal berhasil diperbarui!');
     }
 
-    // FUNGSI HAPUS
+    // Fungsi hapus soal
     public function destroy($id)
     {
-        // Pastikan guru hanya bisa menghapus soal MILIKNYA sendiri
-        $question = Question::where('guru_id', Auth::user()->guru->id)->findOrFail($id);
-        
+        $question = Question::findOrFail($id);
         $question->delete();
 
         return back()->with('success', 'Soal berhasil dihapus!');
     }
 
-    public function import(Request $request) 
+    // Update Import jika nanti kamu butuh (Optional)
+    public function import(Request $request, $exam_id) 
     {
         $request->validate([
-            'subject_id' => 'required|exists:subjects,id',
             'file_excel' => 'required|mimes:xlsx,xls'
         ]);
 
-        Excel::import(new QuestionsImport($request->subject_id), $request->file('file_excel'));
+        $exam = Exam::findOrFail($exam_id);
         
-        return back()->with('success', 'Data soal berhasil diimport!');
+        // Kirim exam_id ke class Import
+        Excel::import(new QuestionsImport($exam->id, $exam->subject_id), $request->file('file_excel'));
+        
+        return back()->with('success', 'Data soal berhasil diimport ke ujian ini!');
     }
 }

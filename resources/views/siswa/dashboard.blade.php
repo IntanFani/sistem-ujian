@@ -25,8 +25,6 @@
                         <h5 class="fw-bold mb-2">{{ $e->title }}</h5>
                         <div class="d-flex align-items-center small text-muted mb-4">
                             <i class="bi bi-alarm me-2"></i> {{ $e->duration }} Menit
-                            <span class="mx-2">•</span>
-                            <i class="bi bi-card-text me-2"></i> {{ $e->questions_count ?? 0 }} Soal
                         </div>
 
                         <div class="d-grid">

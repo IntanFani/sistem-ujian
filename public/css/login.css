@@ -116,6 +116,15 @@ body {
     font-size: 1rem;
 }
 
+
+.password-container input {
+    padding-right: 45px; 
+}
+
+#togglePassword:hover {
+    color: #333 !important; 
+}
+
 .btn-login {
     width: 100%;
     padding: 12px;

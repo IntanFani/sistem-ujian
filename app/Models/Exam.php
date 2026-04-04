@@ -30,7 +30,7 @@ class Exam extends Model
     // Relasi ke Soal (Many-to-Many)
     public function questions()
     {
-        return $this->belongsToMany(Question::class, 'exam_question');
+        return $this->hasMany(Question::class);
     }
 
     public function exam_sessions()
