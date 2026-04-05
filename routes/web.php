@@ -10,8 +10,6 @@ use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Guru\DashboardController as GuruDashboard;
 use App\Http\Controllers\Guru\ExamController;
 use App\Http\Controllers\Siswa\ExamController as SiswaExamController;
-use App\Http\Controllers\Admin\QuestionController as AdminQuestion;
-use App\Http\Controllers\Guru\QuestionController as GuruQuestion;
 
 
 // Redirection awal
@@ -87,6 +85,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/exams/{id}/show', [SiswaExamController::class, 'show'])->name('exams.show');
         Route::post('/exams/save-answer', [SiswaExamController::class, 'saveAnswer'])->name('exams.save-answer');
         Route::post('/exams/{id}/finish', [SiswaExamController::class, 'finish'])->name('exams.finish');
+
+        // Route untuk halaman riwayat ujian
+        Route::get('/riwayat', [SiswaExamController::class, 'riwayat'])->name('riwayat');
 
     });
 

@@ -147,4 +147,17 @@ class ExamController extends Controller
             'message' => 'Ujian selesai! Nilai kamu: ' . round($score, 2)
         ]);
     }
+
+    public function riwayat()
+    {
+        // Ambil data sesi ujian milik user (siswa) yang sedang login
+        // Syarat: completed_at tidak boleh kosong (artinya sudah selesai)
+        $sessions = ExamSession::with(['exam.subject'])
+            ->where('user_id', Auth::id())
+            ->whereNotNull('completed_at')
+            ->orderBy('completed_at', 'desc') // Urutkan dari yang terbaru
+            ->get();
+
+        return view('siswa.riwayat', compact('sessions'));
+    }
 }

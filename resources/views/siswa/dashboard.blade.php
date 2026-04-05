@@ -21,11 +21,11 @@
         </div>
         
         {{-- Jika nanti butuh tombol aksi di kanan (misal: Refresh), taruh di sini --}}
-        <div>
+        {{-- <div>
             <button class="btn btn-light rounded-pill px-3 shadow-sm border text-muted small transition-hover" onclick="window.location.reload();">
                 <i class="bi bi-arrow-clockwise me-1"></i> Segarkan
             </button>
-        </div>
+        </div> --}}
     </div>
 
     {{-- Grid Ujian --}}

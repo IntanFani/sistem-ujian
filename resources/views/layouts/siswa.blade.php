@@ -38,7 +38,6 @@
             border-right: 1px solid #e2e8f0;
             transition: var(--transition);
             z-index: 1050;
-            /* Lebih tinggi dari navbar */
             display: flex;
             flex-direction: column;
         }
@@ -65,7 +64,7 @@
 
         /* Nav Links */
         .nav-list {
-            padding: 15px;
+            padding: 15px 0;
             flex-grow: 1;
             margin: 0;
         }
@@ -78,12 +77,15 @@
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
+            padding: 12px 25px;
             color: #64748b;
             text-decoration: none;
-            border-radius: 12px;
+            /* Border radius dihilangkan di sisi kanan agar garis nempel rapi */
+            border-radius: 12px 0 0 12px; 
             transition: var(--transition);
             white-space: nowrap;
+            /* Siapkan ruang untuk border kanan */
+            border-right: 4px solid transparent; 
         }
 
         .nav-link i {
@@ -101,10 +103,12 @@
             color: var(--primary);
         }
 
+        /* INI YANG DIUBAH: Menu Aktif */
         .nav-link.active {
-            background: #ecfdf5;
-            color: var(--primary);
-            font-weight: 600;
+            background: #f8fafc; 
+            color: var(--primary); 
+            font-weight: 700; 
+            border-right-color: var(--primary); 
         }
 
         /* --- OVERLAY --- */
@@ -157,7 +161,6 @@
         }
 
         /* --- STATES (Logic Toggle) --- */
-        /* Desktop Collapse */
         body.sidebar-toggled #sidebar {
             width: var(--sidebar-collapsed-width);
         }
@@ -224,7 +227,7 @@
             </button>
         </div>
 
-        <ul class="nav-list px-3">
+        <ul class="nav-list">
             <li class="nav-item">
                 <a href="{{ route('siswa.dashboard') }}"
                     class="nav-link {{ request()->is('siswa/dashboard') ? 'active' : '' }}">
@@ -232,23 +235,18 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('siswa.riwayat') }}"
+                    class="nav-link {{ request()->routeIs('siswa.riwayat') ? 'active' : '' }}">
                     <i class="bi bi-clock-history"></i> <span>Riwayat Ujian</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">
-                    <i class="bi bi-info-circle-fill"></i> <span>Panduan CBT</span>
                 </a>
             </li>
         </ul>
 
-        <div class="p-3 border-top mt-auto">
+        <div class="p-4 mt-auto border-top">
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
-                <button type="submit" class="nav-link text-danger border-0 bg-transparent w-100 p-2 text-start">
-                    <i class="bi bi-box-arrow-left"></i>
-                    <span>Keluar Aplikasi</span>
+                <button type="submit" class="btn btn-outline-danger w-100 shadow-sm d-flex align-items-center justify-content-center py-2">
+                    <i class="bi bi-box-arrow-right me-2"></i> Keluar
                 </button>
             </form>
         </div>
@@ -263,7 +261,7 @@
             <div class="text-end me-3 d-none d-md-block">
                 <h6 class="mb-0 fw-bold small text-dark">{{ Auth::user()->name }}</h6>
                 <small class="text-muted" style="font-size: 0.7rem;">Kelas
-                    {{ Auth::user()->siswa->kelas->nama_kelas }}</small>
+                    {{ Auth::user()->siswa->kelas->nama_kelas ?? '-' }}</small>
             </div>
             <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=10b981&color=fff"
                 class="rounded-circle shadow-sm border border-2 border-white" width="40" height="40">
