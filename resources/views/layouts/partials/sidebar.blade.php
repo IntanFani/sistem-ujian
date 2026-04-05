@@ -1,4 +1,7 @@
 <nav id="sidebar">
+    <button type="button" id="closeSidebarMobile" class="btn border-0 text-secondary d-lg-none position-absolute shadow-none" style="top: 15px; right: 15px; z-index: 1060;">
+        <i class="bi bi-x-lg fs-4"></i>
+    </button>
     <div class="sidebar-header">
         <img src="{{ asset('images/logo-sekolah.png') }}" alt="Logo">
         <h6 class="fw-bold mb-0">CBT AL-HUDA</h6>
