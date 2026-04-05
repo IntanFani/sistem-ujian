@@ -11,6 +11,7 @@ use App\Http\Controllers\Guru\DashboardController as GuruDashboard;
 use App\Http\Controllers\Guru\ExamController;
 use App\Http\Controllers\Admin\ExamController as AdminExamController;
 use App\Http\Controllers\Siswa\ExamController as SiswaExamController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
 
 
 
@@ -55,7 +56,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/exams/{id}/monitor', [AdminExamController::class, 'monitor'])->name('exams.monitor');
         Route::post('/exams/sessions/{id}/reset', [AdminExamController::class, 'resetSession'])->name('exams.reset-session');
         Route::post('/exams/{id}/reset-all-sessions', [AdminExamController::class, 'resetAllSessions'])->name('exams.reset-all-sessions');
-    });
+    
+        // Report Nilai
+        Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/{id}', [AdminReportController::class, 'show'])->name('reports.show');
+        Route::get('/reports/{id}/export-excel', [AdminReportController::class, 'exportExcel'])->name('reports.export-excel');
+     });
 
 
 

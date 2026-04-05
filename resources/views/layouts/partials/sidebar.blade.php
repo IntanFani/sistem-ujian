@@ -51,6 +51,9 @@
             <li class="{{ request()->is('admin/exams*') ? 'active' : '' }}">
                 <a href="{{ route('admin.exams.index') }}"> <i class="bi bi-card-checklist"></i> Manajemen Ujian</a>
             </li>
+            <li class="{{ request()->is('admin/reports*') ? 'active' : '' }}">
+                <a href="{{ route('admin.reports.index') }}"> <i class="bi bi-file-earmark-bar-graph"></i> Rekap Nilai</a>
+            </li>
         @endif
 
         {{-- MENU KHUSUS GURU --}}
