@@ -18,7 +18,7 @@
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="me-3 btn btn-danger rounded-pill shadow-sm">
-                        <i class="bi bi-trash3-fill me-1"></i> Reset Semua Sesi Ujian
+                        <i class="bi bi-trash3-fill me-1"></i> Reset semua
                     </button>
                 </form>
                 <a href="{{ route('guru.exams.export-excel', $exam->id) }}" class="btn btn-outline-success rounded-pill px-4">
