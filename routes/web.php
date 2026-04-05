@@ -9,7 +9,9 @@ use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Guru\DashboardController as GuruDashboard;
 use App\Http\Controllers\Guru\ExamController;
+use App\Http\Controllers\Admin\ExamController as AdminExamController;
 use App\Http\Controllers\Siswa\ExamController as SiswaExamController;
+
 
 
 // Redirection awal
@@ -44,7 +46,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/siswas/import', [SiswaController::class, 'importExcel'])->name('siswas.import');
         Route::resource('/siswas', SiswaController::class)->names('siswas');
 
-       
+       // Manajemen Ujian oleh Admin
+        Route::get('/exams', [AdminExamController::class, 'index'])->name('exams.index');
+        Route::post('/exams/{id}/toggle-status', [AdminExamController::class, 'toggleStatus'])->name('exams.toggle-status');
+        Route::post('/exams/{id}/generate-token', [AdminExamController::class, 'generateToken'])->name('exams.generate-token');
+
+        // Monitoring Ujian
+        Route::get('/exams/{id}/monitor', [AdminExamController::class, 'monitor'])->name('exams.monitor');
+        Route::post('/exams/sessions/{id}/reset', [AdminExamController::class, 'resetSession'])->name('exams.reset-session');
+        Route::post('/exams/{id}/reset-all-sessions', [AdminExamController::class, 'resetAllSessions'])->name('exams.reset-all-sessions');
     });
 
 

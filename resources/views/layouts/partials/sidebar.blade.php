@@ -48,6 +48,9 @@
                     </ul>
                 </div>
             </li>
+            <li class="{{ request()->is('admin/exams*') ? 'active' : '' }}">
+                <a href="{{ route('admin.exams.index') }}"> <i class="bi bi-card-checklist"></i> Manajemen Ujian</a>
+            </li>
         @endif
 
         {{-- MENU KHUSUS GURU --}}
