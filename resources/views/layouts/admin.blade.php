@@ -11,7 +11,63 @@
     <link rel="stylesheet" href="{{ asset('css/admin/dashboard.css') }}">
 
     <style>
-        /* 1. Style untuk Overlay Gelap (mirip panel siswa) */
+        /* --- FITUR STICKY SIDEBAR & NAVBAR (VERSI AMPUH) --- */
+        body {
+            overflow: hidden !important; 
+            height: 100vh !important;
+            margin: 0;
+        }
+
+        .wrapper {
+            display: flex !important;
+            height: 100vh !important;
+            width: 100vw !important;
+            overflow: hidden !important;
+        }
+
+        #sidebar {
+            height: 100vh !important;
+            overflow-y: auto !important;
+            flex-shrink: 0 !important;
+        }
+
+        #content {
+            display: flex !important;
+            flex-direction: column !important;
+            flex-grow: 1 !important;
+            height: 100vh !important;
+            overflow: hidden !important;
+            /* Pastikan width menyesuaikan agar tidak melebar keluar layar */
+            width: 0 !important; 
+            min-width: 0 !important;
+        }
+
+        /* Mengunci Navbar (elemen PERTAMA di dalam #content) */
+        #content > :first-child {
+            flex-shrink: 0 !important;
+            z-index: 1000 !important;
+        }
+
+        /* Area Konten Utama yang BISA di-scroll (elemen KEDUA di dalam #content) */
+        #content > .container-fluid {
+            flex-grow: 1 !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            height: 100% !important;
+        }
+
+        /* Sembunyikan scrollbar bawaan agar lebih rapi (Opsional) */
+        #content > .container-fluid::-webkit-scrollbar,
+        #sidebar::-webkit-scrollbar { 
+            width: 6px; 
+        }
+        #content > .container-fluid::-webkit-scrollbar-thumb,
+        #sidebar::-webkit-scrollbar-thumb { 
+            background-color: rgba(0,0,0,0.15); 
+            border-radius: 10px; 
+        }
+
+        /* --- Style untuk Overlay Gelap (mirip panel siswa) --- */
         .sidebar-overlay {
             position: fixed;
             inset: 0;
@@ -23,7 +79,7 @@
             transition: opacity 0.3s ease;
         }
 
-        /* 2. Logika Floating Khusus Layar HP/Tablet */
+        /* --- Logika Floating Khusus Layar HP/Tablet --- */
         @media (max-width: 992px) {
             #sidebar {
                 position: fixed !important; /* Paksa jadi elemen melayang */
@@ -94,7 +150,7 @@
             $(this).removeClass('mobile-show');
         });
 
-        // --- INI TAMBAHAN BARU: Menutup Sidebar jika Tombol X diklik ---
+        // Menutup Sidebar jika Tombol X diklik
         $('#closeSidebarMobile').on('click', function() {
             $('#sidebar').removeClass('mobile-show');
             $('#overlay').removeClass('mobile-show');

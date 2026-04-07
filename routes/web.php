@@ -81,6 +81,7 @@ Route::middleware(['auth'])->group(function () {
     // Manajemen Hasil
     Route::get('/results', [ExamController::class, 'results'])->name('results.index');
     Route::get('/results/{id}', [ExamController::class, 'showResult'])->name('results.show');
+    Route::get('/results/{id}/analysis', [ExamController::class, 'analysis'])->name('results.analysis');
 
     // Reset & Export
     Route::delete('/exams/sessions/{id}/reset', [ExamController::class, 'resetSession'])->name('exams.reset-session');

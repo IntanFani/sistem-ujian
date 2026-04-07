@@ -24,7 +24,9 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-body);
             margin: 0;
-            overflow-x: hidden;
+            /* 1. KUNCI: Matikan scroll global di seluruh body */
+            overflow: hidden;
+            height: 100vh;
         }
 
         /* --- SIDEBAR --- */
@@ -80,12 +82,10 @@
             padding: 12px 25px;
             color: #64748b;
             text-decoration: none;
-            /* Border radius dihilangkan di sisi kanan agar garis nempel rapi */
-            border-radius: 12px 0 0 12px; 
+            border-radius: 12px 0 0 12px;
             transition: var(--transition);
             white-space: nowrap;
-            /* Siapkan ruang untuk border kanan */
-            border-right: 4px solid transparent; 
+            border-right: 4px solid transparent;
         }
 
         .nav-link i {
@@ -103,12 +103,11 @@
             color: var(--primary);
         }
 
-        /* INI YANG DIUBAH: Menu Aktif */
         .nav-link.active {
-            background: #f8fafc; 
-            color: var(--primary); 
-            font-weight: 700; 
-            border-right-color: var(--primary); 
+            background: #f8fafc;
+            color: var(--primary);
+            font-weight: 700;
+            border-right-color: var(--primary);
         }
 
         /* --- OVERLAY --- */
@@ -152,13 +151,25 @@
             transition: 0.2s;
         }
 
-        /* --- CONTENT --- */
+        /* --- CONTENT (INI YANG DIROMBAK) --- */
         #main-content {
-            margin-left: var(--sidebar-width);
-            margin-top: 80px;
+            /* 2. Jadikan konten sebagai kotak yang terkunci... */
+            position: absolute;
+            top: 80px; /* Mulai dari bawah navbar */
+            left: var(--sidebar-width); /* Mulai dari kanan sidebar */
+            right: 0;
+            bottom: 0;
             padding: 40px;
+            /* 3. ...Lalu biarkan isinya bisa di-scroll ke bawah */
+            overflow-y: auto;
+            overflow-x: hidden;
             transition: var(--transition);
+            scrollbar-width: thin;
         }
+
+        /* Sembunyikan scrollbar bawaan agar rapi */
+        #main-content::-webkit-scrollbar { width: 6px; }
+        #main-content::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.15); border-radius: 10px; }
 
         /* --- STATES (Logic Toggle) --- */
         body.sidebar-toggled #sidebar {
@@ -175,7 +186,8 @@
         }
 
         body.sidebar-toggled #main-content {
-            margin-left: var(--sidebar-collapsed-width);
+            /* Geser konten utama ke kiri saat sidebar ditutup */
+            left: var(--sidebar-collapsed-width);
         }
 
         /* Mobile Responsive */
@@ -189,7 +201,8 @@
             }
 
             #main-content {
-                margin-left: 0 !important;
+                left: 0 !important;
+                width: 100%;
                 padding: 20px;
             }
 

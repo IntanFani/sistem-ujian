@@ -132,7 +132,7 @@ class ExamController extends Controller
 
     public function updateQuestion(Request $request, $id, $question_id)
     {
-        $question = \App\Models\Question::findOrFail($question_id);
+        $question = Question::findOrFail($question_id);
         
         // Update data teks dan opsi
         $question->update([
@@ -229,5 +229,37 @@ class ExamController extends Controller
         $namaFile = 'Hasil_Ujian_' . str_replace(' ', '_', $exam->title) . '.xlsx';
         
         return Excel::download(new ExamResultsExport($id), $namaFile);
+    }
+
+    public function analysis($id)
+    {
+        $exam = Exam::findOrFail($id);
+        
+        // Ambil ID sesi ujian yang sudah selesai (completed_at tidak null)
+        $sessionIds = ExamSession::where('exam_id', $id)
+                                ->whereNotNull('completed_at')
+                                ->pluck('id');
+                                
+        $total_peserta = count($sessionIds);
+
+        // Ambil semua pertanyaan pada ujian ini, lalu hitung statistik jawabannya
+        $questions = Question::where('exam_id', $id)->get()->map(function ($q) use ($sessionIds) {
+            // Mengambil semua jawaban siswa untuk pertanyaan ini dari tabel exam_answers
+            $answers = \App\Models\ExamAnswer::whereIn('exam_session_id', $sessionIds)
+                                            ->where('question_id', $q->id)
+                                            ->get();
+
+            $q->answers_count = $answers->count();
+            $q->benar_count = $answers->where('is_correct', true)->count();
+            $q->jawab_a_count = $answers->where('answer', 'a')->count();
+            $q->jawab_b_count = $answers->where('answer', 'b')->count();
+            $q->jawab_c_count = $answers->where('answer', 'c')->count();
+            $q->jawab_d_count = $answers->where('answer', 'd')->count();
+            $q->jawab_e_count = $answers->where('answer', 'e')->count();
+
+            return $q;
+        });
+
+        return view('guru.results.analysis', compact('exam', 'questions', 'total_peserta'));
     }
 }
