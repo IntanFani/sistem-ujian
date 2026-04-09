@@ -16,16 +16,23 @@ class SiswaController extends Controller
 {
 
     // 1. Fungsi Index (Sesuai dengan kode asli kamu)
-    public function index()
+    public function index(Request $request)
     {
-        // Pastikan load relasi 'user' juga agar email tidak error di view
-        $siswas = Siswa::with(['user', 'kelas'])->get();
-        
-        $kelases = Kelas::all(); // Untuk dropdown pilih kelas
+        // Mengambil data kelas untuk dropdown filter dan form
+        $kelases = Kelas::all();
+
+        // Query data siswa dengan filter dinamis
+        $query = Siswa::with(['kelas', 'user'])->latest();
+
+        // Jika ada request filter 'kelas' di URL, jalankan filter ini
+        if ($request->filled('kelas')) {
+            $query->where('kelas_id', $request->kelas);
+        }
+
+        $siswas = $query->get();
 
         return view('admin.siswas.index', compact('siswas', 'kelases'));
     }
-
     // 2. Fungsi Proses Naik Kelas
     public function prosesNaikKelas(Request $request)
     {

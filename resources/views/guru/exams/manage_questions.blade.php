@@ -227,7 +227,7 @@
                         data-bs-dismiss="modal">Batal</button>
                     <button type="submit"
                         class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm border-0 transition-3d d-flex align-items-center">
-                        <i class="bi bi-send-check-fill me-2"></i> Simpan Soal
+                        <i class="bi bi-floppy me-2"></i> Simpan Soal
                     </button>
                 </div>
             </form>
@@ -326,7 +326,7 @@
                         data-bs-dismiss="modal">Batal</button>
                     <button type="submit"
                         class="btn btn-warning rounded-pill px-5 py-2 fw-bold shadow-sm border-0 transition-3d text-white d-flex align-items-center">
-                        <i class="bi bi-save2-fill me-2"></i> Simpan Perubahan
+                        <i class="bi bi-floppy me-2"></i> Simpan Perubahan
                     </button>
                 </div>
             </form>

@@ -115,7 +115,7 @@
                     <div class="card-footer bg-white border-top p-4 px-md-5 d-flex justify-content-end gap-3">
                         <a href="{{ route('guru.exams.index') }}" class="btn btn-light border rounded-pill px-4 py-2 fw-medium text-secondary shadow-sm transition-3d">Batal</a>
                         <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm border-0 transition-3d text-white d-flex align-items-center">
-                            <i class="bi bi-file-earmark-check-fill me-2"></i> Simpan Perubahan
+                            <i class="bi bi-floppy me-2"></i> Simpan Perubahan
                         </button>
                     </div>
                 </form>

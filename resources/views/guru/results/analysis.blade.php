@@ -53,9 +53,9 @@
                             <div class="col-lg-7 mb-4 mb-lg-0 border-end-lg pe-lg-4">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold">SOAL #{{ $index + 1 }}</span>
-                                    <span class="badge bg-{{ $badge_color }}-subtle text-{{ $badge_color }} px-3 py-2 rounded-pill fw-bold">
+                                    {{-- <span class="badge bg-{{ $badge_color }}-subtle text-{{ $badge_color }} px-3 py-2 rounded-pill fw-bold">
                                         Kategori: {{ $tingkat }}
-                                    </span>
+                                    </span> --}}
                                 </div>
                                 <div class="text-dark fs-6 mb-3" style="line-height: 1.6;">
                                     {!! $q->question_text !!}

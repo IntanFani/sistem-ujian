@@ -17,102 +17,117 @@
     </div>
 
     <div class="row g-4">
-        {{-- Kolom Kiri: Form Utama --}}
+        {{-- Kolom Kiri: Form Utama (Desain Minimalis Berwarna) --}}
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                 <form action="{{ route('guru.exams.store') }}" method="POST">
                     @csrf
                     <div class="card-body p-4 p-md-5">
 
-                        {{-- Section 1: Informasi Dasar --}}
-                        <div class="d-flex align-items-center mb-4">
+                        {{-- Section 1: Informasi Dasar dengan Aksen Biru --}}
+                        <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
                             <div class="bg-primary bg-opacity-10 text-primary p-2 rounded-3 me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
                                 <i class="bi bi-info-circle-fill fs-5"></i>
                             </div>
-                            <h6 class="fw-bold mb-0 text-uppercase" style="letter-spacing: 1px;">Informasi Dasar</h6>
+                            <h6 class="fw-bold mb-0 text-uppercase" style="letter-spacing: 1px; color: #475569;">Informasi Dasar</h6>
                         </div>
 
-                        <div class="row g-4 mb-5 pb-3 border-bottom">
+                        <div class="row g-4 mb-4">
                             <div class="col-12">
-                                <label class="form-label fw-bold small text-muted text-uppercase mb-2">Judul Ujian</label>
-                                <div class="input-group custom-input-group">
-                                    <span class="input-group-text bg-light border-0 px-3"><i class="bi bi-card-heading text-muted fs-5"></i></span>
-                                    <input type="text" name="title" class="form-control bg-light border-0 py-3 shadow-none fw-medium" placeholder="Misal: Ujian Akhir Semester Ganjil" required value="{{ old('title') }}">
-                                </div>
+                                <label class="form-label fw-semibold text-dark">Judul Ujian</label>
+                                <input type="text" name="title" class="form-control form-control-lg rounded-3 fs-6 custom-minimal-input" placeholder="Misal: Ujian Akhir Semester Ganjil" required value="{{ old('title') }}">
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label fw-bold small text-muted text-uppercase mb-2">Mata Pelajaran</label>
-                                <div class="input-group custom-input-group">
-                                    <span class="input-group-text bg-light border-0 px-3"><i class="bi bi-journal-check text-muted fs-5"></i></span>
-                                    <select name="subject_id" class="form-select bg-light border-0 py-3 shadow-none fw-medium cursor-pointer" required>
-                                        <option value="" disabled selected>-- Pilih Mata Pelajaran --</option>
-                                        @foreach ($subjects as $subject)
-                                            <option value="{{ $subject->id }}" {{ old('subject_id') == $subject->id ? 'selected' : '' }}>{{ $subject->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                <label class="form-label fw-semibold text-dark">Mata Pelajaran</label>
+                                <select name="subject_id" class="form-select form-select-lg rounded-3 fs-6 custom-minimal-input cursor-pointer" required>
+                                    <option value="" disabled selected>-- Pilih Mata Pelajaran --</option>
+                                    @foreach ($subjects as $subject)
+                                        <option value="{{ $subject->id }}" {{ old('subject_id') == $subject->id ? 'selected' : '' }}>{{ $subject->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label fw-bold small text-muted text-uppercase mb-2">Target Kelas</label>
-                                <div class="input-group custom-input-group">
-                                    <span class="input-group-text bg-light border-0 px-3"><i class="bi bi-people text-muted fs-5"></i></span>
-                                    <select name="kelas_id" class="form-select bg-light border-0 py-3 shadow-none fw-medium cursor-pointer" required>
-                                        <option value="" disabled selected>-- Pilih Kelas --</option>
-                                        @foreach ($classes as $class)
-                                            <option value="{{ $class->id }}" {{ old('kelas_id') == $class->id ? 'selected' : '' }}>{{ $class->nama_kelas }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                <label class="form-label fw-semibold text-dark">Target Kelas</label>
+                                <select name="kelas_id" class="form-select form-select-lg rounded-3 fs-6 custom-minimal-input cursor-pointer" required>
+                                    <option value="" disabled selected>-- Pilih Kelas --</option>
+                                    @foreach ($classes as $class)
+                                        <option value="{{ $class->id }}" {{ old('kelas_id') == $class->id ? 'selected' : '' }}>{{ $class->nama_kelas }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
 
-                        {{-- Section 2: Pengaturan Pelaksanaan --}}
-                        <div class="d-flex align-items-center mb-4 mt-2">
+                        {{-- Section 2: Pengaturan Pelaksanaan dengan Aksen Kuning --}}
+                        <div class="d-flex align-items-center mb-4 mt-2 pb-3 border-bottom">
                             <div class="bg-warning bg-opacity-10 text-warning p-2 rounded-3 me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
                                 <i class="bi bi-sliders fs-5"></i>
                             </div>
-                            <h6 class="fw-bold mb-0 text-uppercase" style="letter-spacing: 1px;">Pengaturan Pelaksanaan</h6>
+                            <h6 class="fw-bold mb-0 text-uppercase" style="letter-spacing: 1px; color: #475569;">Pengaturan Pelaksanaan</h6>
                         </div>
 
                         <div class="row g-4 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label fw-bold small text-muted text-uppercase mb-2">Durasi Pengerjaan</label>
-                                <div class="input-group custom-input-group">
-                                    <span class="input-group-text bg-light border-0 px-3"><i class="bi bi-clock-history text-muted fs-5"></i></span>
-                                    <input type="number" name="duration" class="form-control bg-light border-0 py-3 shadow-none fw-medium" placeholder="90" required min="10" value="{{ old('duration', 90) }}">
-                                    <span class="input-group-text bg-light border-0 fw-bold text-muted pe-4">Menit</span>
+                                <label class="form-label fw-semibold text-dark">Durasi Pengerjaan</label>
+                                <div class="input-group">
+                                    <input type="number" name="duration" class="form-control form-control-lg rounded-start-3 fs-6 custom-minimal-input border-end-0" placeholder="90" required min="10" value="{{ old('duration', 90) }}">
+                                    <span class="input-group-text text-muted fw-medium rounded-end-3" style="background-color: #f8fafc; border-color: #e2e8f0;">Menit</span>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- Box Acak Soal (Premium Look) --}}
-                        <div class="p-4 rounded-4 d-flex align-items-center justify-content-between border mt-2" style="background-color: #fafafa; border-color: #f1f5f9 !important;">
-                            <div class="d-flex align-items-center">
-                                <div class="bg-white shadow-sm rounded-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                                    <i class="bi bi-shuffle text-primary fs-4"></i>
-                                </div>
-                                <div>
-                                    <h6 class="fw-bold mb-1 text-dark">Aktifkan Acak Soal</h6>
-                                    <p class="text-muted small mb-0">Urutan soal akan diacak secara otomatis untuk meminimalisir kecurangan.</p>
-                                </div>
+                        {{-- Box Acak Soal Berwarna Tanpa Ikon Besar --}}
+                        <div class="d-flex justify-content-between align-items-center p-3 rounded-3" style="background-color: #f1f5f9; border: 1px solid #e2e8f0;">
+                            <div>
+                                <h6 class="fw-semibold text-dark mb-1">Acak Urutan Soal</h6>
+                                <small class="text-muted">Setiap siswa akan mendapatkan urutan nomor soal yang berbeda.</small>
                             </div>
-                            <div class="form-check form-switch ms-3 m-0 p-0">
-                                <input class="form-check-input custom-switch-lg m-0" type="checkbox" role="switch" id="random" name="random_question" value="1" checked>
+                            <div class="form-check form-switch fs-4 mb-0 pe-2">
+                                <input class="form-check-input cursor-pointer custom-colored-switch" type="checkbox" role="switch" id="random" name="random_question" value="1" checked>
                             </div>
                         </div>
 
                     </div>
 
                     {{-- Card Footer & Submit --}}
-                    <div class="card-footer bg-white border-top p-4 px-md-5 d-flex justify-content-end gap-3">
-                        <a href="{{ route('guru.exams.index') }}" class="btn btn-light border rounded-pill px-4 py-2 fw-medium text-secondary shadow-sm transition-3d">Batal</a>
-                        <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm border-0 transition-3d text-white d-flex align-items-center">
-                            <i class="bi bi-file-earmark-check-fill me-2"></i> Simpan Ujian
+                    <div class="card-footer bg-white border-top p-4 d-flex justify-content-end gap-2">
+                        <a href="{{ route('guru.exams.index') }}" class="btn btn-light rounded-pill px-4 fw-medium text-secondary transition-3d">Batal</a>
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm d-flex align-items-center transition-3d">
+                            <i class="bi bi-floppy me-2"></i> Simpan Ujian
                         </button>
                     </div>
                 </form>
+                
+                {{-- Tambahkan CSS khusus untuk input minimalis di bawah ini --}}
+                <style>
+                    /* Style Input Tanpa Garis Samping, Hanya Background Lembut */
+                    .custom-minimal-input {
+                        background-color: #f8fafc;
+                        border: 1px solid #e2e8f0;
+                        color: #1e293b;
+                        transition: all 0.3s ease;
+                    }
+
+                    /* Efek Focus: Berubah Warna Halus (Biru Primary) */
+                    .custom-minimal-input:focus {
+                        background-color: #fff;
+                        border-color: #3b82f6; /* Warna biru primary lembut */
+                        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); /* Shadow tipis */
+                    }
+                    
+                    /* CSS Custom Switch Berwarna */
+                    .custom-colored-switch:checked {
+                        background-color: #10b981 !important; /* Hijau Emerald */
+                        border-color: #10b981 !important;
+                    }
+                    
+                    /* Hilangkan bayangan bawaan Bootstrap saat focus switch */
+                    .custom-colored-switch:focus {
+                        box-shadow: none;
+                        border-color: #e2e8f0;
+                    }
+                </style>
             </div>
         </div>
 

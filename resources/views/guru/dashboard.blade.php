@@ -21,18 +21,18 @@
         </div>
     </div>
 
-    {{-- 2. Row 4 Widget Statistik --}}
+    {{-- 2. Row 4 Widget Statistik (Versi Compact) --}}
     <div class="row g-3 mb-4">
         {{-- Widget 1: Total Ujian --}}
         <div class="col-md-6 col-xl-3">
             <div class="card border-0 shadow-sm rounded-4 h-100 widget-hover">
-                <div class="card-body p-4 d-flex align-items-center">
-                    <div class="bg-primary bg-opacity-10 p-3 rounded-4 me-3 text-primary">
-                        <i class="bi bi-file-earmark-text fs-3"></i>
+                <div class="card-body p-3 d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 rounded-4 me-3 text-primary d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;">
+                        <i class="bi bi-file-earmark-text fs-5"></i>
                     </div>
                     <div>
-                        <p class="text-muted small fw-bold text-uppercase mb-1">Total Ujian</p>
-                        <h3 class="fw-bold mb-0 text-dark">{{ $total_ujian ?? 0 }}</h3>
+                        <p class="text-muted mb-0" style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">Total Ujian</p>
+                        <h4 class="fw-bold mb-0 text-dark">{{ $total_ujian ?? 0 }}</h4>
                     </div>
                 </div>
             </div>
@@ -41,13 +41,13 @@
         {{-- Widget 2: Ujian Aktif --}}
         <div class="col-md-6 col-xl-3">
             <div class="card border-0 shadow-sm rounded-4 h-100 widget-hover">
-                <div class="card-body p-4 d-flex align-items-center">
-                    <div class="bg-success bg-opacity-10 p-3 rounded-4 me-3 text-success">
-                        <i class="bi bi-broadcast fs-3"></i>
+                <div class="card-body p-3 d-flex align-items-center">
+                    <div class="bg-success bg-opacity-10 rounded-4 me-3 text-success d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;">
+                        <i class="bi bi-broadcast fs-5"></i>
                     </div>
                     <div>
-                        <p class="text-muted small fw-bold text-uppercase mb-1">Ujian Aktif</p>
-                        <h3 class="fw-bold mb-0 text-dark">{{ $ujian_aktif ?? 0 }}</h3>
+                        <p class="text-muted mb-0" style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">Ujian Aktif</p>
+                        <h4 class="fw-bold mb-0 text-dark">{{ $ujian_aktif ?? 0 }}</h4>
                     </div>
                 </div>
             </div>
@@ -56,13 +56,13 @@
         {{-- Widget 3: Total Soal --}}
         <div class="col-md-6 col-xl-3">
             <div class="card border-0 shadow-sm rounded-4 h-100 widget-hover">
-                <div class="card-body p-4 d-flex align-items-center">
-                    <div class="bg-warning bg-opacity-10 p-3 rounded-4 me-3 text-warning">
-                        <i class="bi bi-list-task fs-3"></i>
+                <div class="card-body p-3 d-flex align-items-center">
+                    <div class="bg-warning bg-opacity-10 rounded-4 me-3 text-warning d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;">
+                        <i class="bi bi-list-task fs-5"></i>
                     </div>
                     <div>
-                        <p class="text-muted small fw-bold text-uppercase mb-1">Soal Anda</p>
-                        <h3 class="fw-bold mb-0 text-dark">{{ $total_soal ?? 0 }}</h3>
+                        <p class="text-muted mb-0" style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">Soal Anda</p>
+                        <h4 class="fw-bold mb-0 text-dark">{{ $total_soal ?? 0 }}</h4>
                     </div>
                 </div>
             </div>
@@ -71,13 +71,13 @@
         {{-- Widget 4: Rekap Nilai --}}
         <div class="col-md-6 col-xl-3">
             <div class="card border-0 shadow-sm rounded-4 h-100 widget-hover">
-                <div class="card-body p-4 d-flex align-items-center">
-                    <div class="bg-info bg-opacity-10 p-3 rounded-4 me-3 text-info">
-                        <i class="bi bi-graph-up-arrow fs-3"></i>
+                <div class="card-body p-3 d-flex align-items-center">
+                    <div class="bg-info bg-opacity-10 rounded-4 me-3 text-info d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;">
+                        <i class="bi bi-graph-up-arrow fs-5"></i>
                     </div>
                     <div>
-                        <p class="text-muted small fw-bold text-uppercase mb-1">Data Nilai</p>
-                        <h3 class="fw-bold mb-0 text-dark">{{ $total_hasil ?? 0 }}</h3>
+                        <p class="text-muted mb-0" style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">Data Nilai</p>
+                        <h4 class="fw-bold mb-0 text-dark">{{ $total_hasil ?? 0 }}</h4>
                     </div>
                 </div>
             </div>
@@ -141,7 +141,7 @@
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm rounded-4 h-100">
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
-                    <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Akses Cepat</h6>
+                    <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-grid-fill text-primary opacity-75 me-2"></i>Akses Cepat</h6>
                 </div>
                 <div class="card-body p-4">
                     <div class="d-grid gap-3">

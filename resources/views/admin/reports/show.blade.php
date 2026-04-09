@@ -3,19 +3,23 @@
 @section('title', 'Detail Nilai: ' . $exam->title)
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <a href="{{ route('admin.reports.index') }}" class="btn btn-sm btn-light border mb-2 rounded-3 text-muted">
-            <i class="bi bi-arrow-left"></i> Kembali
-        </a>
-        <h4 class="fw-bold text-dark mb-1">Laporan Nilai Ujian</h4>
-    </div>
-    <div>
-        {{-- Tombol Export Excel --}}
-        <a href="{{ route('admin.reports.export-excel', $exam->id) }}" class="btn btn-success rounded-3 shadow-sm">
-            <i class="bi bi-file-earmark-excel me-1"></i> Download Excel
-        </a>
-    </div>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div class="d-flex align-items-center">
+            <a href="{{ route('admin.reports.index') }}" class="btn btn-white border shadow-sm rounded-circle d-flex align-items-center justify-content-center me-3 transition-3d text-secondary" style="width: 48px; height: 48px;" title="Kembali ke Rekapitulasi">
+                <i class="bi bi-arrow-left fs-5"></i>
+            </a>
+            <div>
+                <h4 class="fw-bold mb-1 text-dark" style="letter-spacing: 0.5px;">LAPORAN NILAI UJIAN</h4>
+                <p class="text-muted small mb-0">Rincian hasil ujian peserta secara menyeluruh.</p>
+            </div>
+        </div>
+        
+        <div>
+            {{-- Tombol Export Excel --}}
+            <a href="{{ route('admin.reports.export-excel', $exam->id) }}" class="btn btn-success rounded-pill px-4 py-2 shadow-sm transition-3d fw-bold d-flex align-items-center">
+                <i class="bi bi-file-earmark-excel-fill me-2"></i> Download Excel
+            </a>
+        </div>
 </div>
 
 <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
