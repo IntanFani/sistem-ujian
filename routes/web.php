@@ -49,6 +49,20 @@ Route::middleware(['auth'])->group(function () {
 
        // Manajemen Ujian oleh Admin
         Route::get('/exams', [AdminExamController::class, 'index'])->name('exams.index');
+        Route::get('/exams/create', [AdminExamController::class, 'create'])->name('exams.create');
+        Route::post('/exams', [AdminExamController::class, 'store'])->name('exams.store'); 
+        Route::get('/exams/{id}/edit', [AdminExamController::class, 'edit'])->name('exams.edit'); 
+        Route::put('/exams/{id}', [AdminExamController::class, 'update'])->name('exams.update'); 
+        Route::delete('/exams/{id}', [AdminExamController::class, 'destroy'])->name('exams.destroy'); 
+
+        // Route Kelola Soal oleh Admin
+        Route::get('/exams/{id}/questions', [AdminExamController::class, 'questions'])->name('exams.questions');
+        Route::post('/exams/{id}/questions', [AdminExamController::class, 'storeQuestion'])->name('exams.questions.store');
+        Route::put('/exams/{id}/questions/{question_id}', [AdminExamController::class, 'updateQuestion'])->name('exams.questions.update');
+        Route::delete('/exams/{id}/questions/{question_id}', [AdminExamController::class, 'destroyQuestion'])->name('exams.questions.destroy');
+        Route::post('/exams/{id}/questions/import', [AdminExamController::class, 'importQuestions'])->name('exams.questions.import');
+
+        // Tombol Aksi Cepat
         Route::post('/exams/{id}/toggle-status', [AdminExamController::class, 'toggleStatus'])->name('exams.toggle-status');
         Route::post('/exams/{id}/generate-token', [AdminExamController::class, 'generateToken'])->name('exams.generate-token');
 
@@ -56,12 +70,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/exams/{id}/monitor', [AdminExamController::class, 'monitor'])->name('exams.monitor');
         Route::post('/exams/sessions/{id}/reset', [AdminExamController::class, 'resetSession'])->name('exams.reset-session');
         Route::post('/exams/{id}/reset-all-sessions', [AdminExamController::class, 'resetAllSessions'])->name('exams.reset-all-sessions');
+        
+        // Kelola Soal (Admin bisa kelola soal juga)
+        Route::get('/exams/{id}/questions', [AdminExamController::class, 'questions'])->name('exams.questions'); 
     
         // Report Nilai
         Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/{id}', [AdminReportController::class, 'show'])->name('reports.show');
         Route::get('/reports/{id}/export-excel', [AdminReportController::class, 'exportExcel'])->name('reports.export-excel');
-     });
+    });
 
 
 
@@ -77,6 +94,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/exams/{exam_id}/questions', [ExamController::class, 'storeQuestions'])->name('exams.questions.store');
     Route::delete('/exams/questions/{question_id}/remove', [ExamController::class, 'removeQuestion'])->name('exams.questions.remove');
     Route::put('/exams/{id}/questions/{question_id}', [ExamController::class, 'updateQuestion'])->name('exams.questions.update');
+    Route::post('/exams/{id}/questions/import', [ExamController::class, 'importQuestions'])->name('exams.questions.import');
 
     // Manajemen Hasil
     Route::get('/results', [ExamController::class, 'results'])->name('results.index');

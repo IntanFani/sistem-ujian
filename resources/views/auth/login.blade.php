@@ -29,11 +29,15 @@
                 <form action="{{ route('login.post') }}" method="POST">
                     @csrf
                     <div class="form-group">
-                        <label>Username / Email</label>
-                        <input type="text" name="email" class="form-control @error('email') is-invalid @enderror"
-                            placeholder="Masukkan Email" value="{{ old('email') }}" required autofocus>
+                        {{-- 1. Ubah label biar user tahu bisa pakai NISN --}}
+                        <label>Usernama/Email</label>
 
-                        @error('email')
+                        {{-- 2. Ubah name="email" jadi name="login", dan old('email') jadi old('login') --}}
+                        <input type="text" name="login" class="form-control @error('login') is-invalid @enderror"
+                            placeholder="Masukkan Usename / Email" value="{{ old('login') }}" required autofocus>
+
+                        {{-- 3. Ubah tangkapan error dari 'email' jadi 'login' --}}
+                        @error('login')
                             <span class="text-danger" style="font-size: 12px;">{{ $message }}</span>
                         @enderror
                     </div>
@@ -65,20 +69,20 @@
             </div>
         </div>
     </div>
-<script>
-    const togglePassword = document.querySelector('#togglePassword');
-    const password = document.querySelector('#password');
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
 
-    togglePassword.addEventListener('click', function (e) {
-        // Toggle tipe input (password ke text atau sebaliknya)
-        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-        password.setAttribute('type', type);
-        
-        // Toggle icon (mata terbuka / mata tertutup)
-        this.classList.toggle('bi-eye');
-        this.classList.toggle('bi-eye-slash');
-    });
-</script>
+        togglePassword.addEventListener('click', function(e) {
+            // Toggle tipe input (password ke text atau sebaliknya)
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+
+            // Toggle icon (mata terbuka / mata tertutup)
+            this.classList.toggle('bi-eye');
+            this.classList.toggle('bi-eye-slash');
+        });
+    </script>
 </body>
 
 </html>

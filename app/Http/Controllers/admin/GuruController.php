@@ -28,7 +28,7 @@ class GuruController extends Controller
             'nip' => 'required|unique:gurus,nip',
             'nama' => 'required',
             'email' => 'required|email|unique:users,email',
-            'password' => 'nullable|min:6', 
+            'password' => 'nullable|min:6|confirmed', 
             'subject_id' => 'required|exists:subjects,id'
         ]);
 
@@ -65,7 +65,7 @@ class GuruController extends Controller
         'nama'       => 'required',
         'email'      => 'required|email|unique:users,email,' . $user->id,
         'subject_id' => 'required|exists:subjects,id',
-        'password'   => 'nullable|min:6' // Nullable artinya boleh kosong
+        'password'   => 'nullable|min:6|confirmed'// Nullable artinya boleh kosong
     ]);
 
     DB::transaction(function () use ($request, $guru, $user) {

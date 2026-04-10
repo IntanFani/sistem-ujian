@@ -166,16 +166,21 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-6 mt-4">
+                        {{-- Perubahan Layout Email & Password --}}
+                        <div class="col-md-12 mt-4">
                             <label class="form-label small fw-bold text-primary text-uppercase mb-2"><i class="bi bi-envelope-at me-1"></i> Email Login</label>
                             <input type="email" name="email" class="form-control bg-white border custom-input py-2 shadow-none" placeholder="guru@mtsalhuda.com" required>
                         </div>
-                        <div class="col-md-6 mt-4">
+                        <div class="col-md-6 mt-3">
                             <label class="form-label small fw-bold text-primary text-uppercase mb-2"><i class="bi bi-lock me-1"></i> Password</label>
                             <input type="password" name="password" class="form-control bg-white border custom-input py-2 shadow-none" placeholder="Min. 6 Karakter">
                             <div class="form-text text-muted mt-2" style="font-size: 0.75rem;">
-                                <i class="bi bi-info-circle me-1"></i> Kosongkan jika ingin menggunakan <b>NIP</b> sebagai password default.
+                                <i class="bi bi-info-circle me-1"></i> Kosongkan jika ingin menggunakan <b>NIP</b>.
                             </div>
+                        </div>
+                        <div class="col-md-6 mt-3">
+                            <label class="form-label small fw-bold text-primary text-uppercase mb-2"><i class="bi bi-shield-check me-1"></i> Konfirmasi Password</label>
+                            <input type="password" name="password_confirmation" class="form-control bg-white border custom-input py-2 shadow-none" placeholder="Ulangi Password">
                         </div>
                     </div>
                 </div>
@@ -228,16 +233,21 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-6 mt-4">
+                        {{-- Perubahan Layout Email & Password --}}
+                        <div class="col-md-12 mt-4">
                             <label class="form-label small fw-bold text-primary text-uppercase mb-2"><i class="bi bi-envelope-at me-1"></i> Email Login</label>
                             <input type="email" name="email" id="edit_email" class="form-control bg-white border custom-input py-2 shadow-none focus-warning" required>
                         </div>
-                        <div class="col-md-6 mt-4">
+                        <div class="col-md-6 mt-3">
                             <label class="form-label small fw-bold text-danger text-uppercase mb-2"><i class="bi bi-shield-lock me-1"></i> Ganti Password</label>
                             <input type="password" name="password" class="form-control bg-white border custom-input py-2 shadow-none focus-warning" placeholder="Isi jika ingin reset password">
                             <div class="form-text text-muted mt-2" style="font-size: 0.75rem;">
-                                <i class="bi bi-info-circle me-1"></i> Kosongkan jika tidak ingin mengubah password guru.
+                                <i class="bi bi-info-circle me-1"></i> Kosongkan jika tidak mengubah password.
                             </div>
+                        </div>
+                        <div class="col-md-6 mt-3">
+                            <label class="form-label small fw-bold text-danger text-uppercase mb-2"><i class="bi bi-shield-check me-1"></i> Konfirmasi Password</label>
+                            <input type="password" name="password_confirmation" class="form-control bg-white border custom-input py-2 shadow-none focus-warning" placeholder="Ulangi Password Baru">
                         </div>
                     </div>
                 </div>

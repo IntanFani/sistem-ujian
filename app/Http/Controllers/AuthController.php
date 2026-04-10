@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash; // Wajib ditambah untuk cek password manual
 use App\Models\User;
+use App\Models\Siswa; // Wajib ditambah untuk cek NISN
 
 class AuthController extends Controller
 {
@@ -14,39 +16,56 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    // Proses login
+    // Proses login (Sudah mendukung Email dan NISN)
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
+        // 1. Validasi: 'email' diganti jadi 'login' dan dihapus aturan format emailnya
+        $request->validate([
+            'login' => 'required',
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+        $loginInput = $request->login;
+        $password = $request->password;
 
-            // Logika Redirect Berdasarkan Role
-            if (Auth::user()->role == 'admin') {
-                return redirect()->intended('/admin/dashboard');
-            } elseif (Auth::user()->role == 'guru') {
-                return redirect()->intended('/guru/dashboard');
-            } elseif (Auth::user()->role == 'siswa') {
-                return redirect()->intended('/siswa/dashboard');
-            }
+        // 2. Cari akun berdasarkan Email (di tabel users)
+        $user = User::where('email', $loginInput)->first();
 
-            // Default jika role tidak dikenal
-            return redirect('/');
-        }
-        // --- LOGIKA CEK ERROR SPESIFIK ---
-        $user = User::where('email', $request->email)->first();
-
+        // 3. Jika tidak ketemu pakai email, cari berdasarkan NISN (di tabel siswas)
         if (!$user) {
-            // Jika email tidak ditemukan
-            return back()->withErrors(['email' => 'Email ini salah atau tidak terdaftar.'])->withInput();
-        } else {
-            // Jika email ada tapi password salah
+            $siswa = Siswa::where('nisn', $loginInput)->first();
+            if ($siswa) {
+                $user = $siswa->user; // Tarik relasi akun usernya
+            }
+        }
+
+        // --- LOGIKA CEK ERROR SPESIFIK (Meneruskan gaya kodemu) ---
+        if (!$user) {
+            // Jika Email / NISN tidak ditemukan sama sekali
+            return back()->withErrors(['login' => 'Email/NISN ini salah atau tidak terdaftar.'])->withInput();
+        }
+
+        if (!Hash::check($password, $user->password)) {
+            // Jika Email/NISN ada, tapi password salah
             return back()->withErrors(['password' => 'Password yang Anda masukkan salah.'])->withInput();
         }
+
+        // --- JIKA BERHASIL ---
+        // 4. Proses Login
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        // 5. Logika Redirect Berdasarkan Role
+        if ($user->role == 'admin') {
+            return redirect()->intended('/admin/dashboard');
+        } elseif ($user->role == 'guru') {
+            return redirect()->intended('/guru/dashboard');
+        } elseif ($user->role == 'siswa') {
+            return redirect()->intended('/siswa/dashboard');
+        }
+
+        // Default jika role tidak dikenal
+        return redirect('/');
     }
 
     // Proses logout
@@ -57,5 +76,4 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         return redirect('/login');
     }
-
 }

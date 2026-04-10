@@ -1,14 +1,17 @@
-<nav id="sidebar">
+<nav id="sidebar" class="d-flex flex-column" style="height: 100vh;">
     <button type="button" id="closeSidebarMobile" class="btn border-0 text-secondary d-lg-none position-absolute shadow-none" style="top: 15px; right: 15px; z-index: 1060;">
         <i class="bi bi-x-lg fs-4"></i>
     </button>
+    
     <div class="sidebar-header">
         <img src="{{ asset('images/logo-sekolah.png') }}" alt="Logo">
         <h6 class="fw-bold mb-0">CBT AL-HUDA</h6>
         <small class="text-muted text-uppercase">{{ Auth::user()->role }} Panel</small>
     </div>
 
-    <ul class="list-unstyled components">
+    {{-- Area Menu yang bisa di-scroll --}}
+    <ul class="list-unstyled components flex-grow-1" style="overflow-y: auto; margin-bottom: 0;">
+        
         {{-- MENU DASHBOARD (Bisa dilihat keduanya) --}}
         <li class="{{ request()->is('admin/dashboard', 'guru/dashboard') ? 'active' : '' }}">
             <a href="{{ Auth::user()->role == 'admin' ? route('admin.dashboard') : route('guru.dashboard') }}">
@@ -48,6 +51,7 @@
                     </ul>
                 </div>
             </li>
+            
             <li class="{{ request()->is('admin/exams*') ? 'active' : '' }}">
                 <a href="{{ route('admin.exams.index') }}"> <i class="bi bi-card-checklist"></i> Manajemen Ujian</a>
             </li>
@@ -67,11 +71,14 @@
         @endif
     </ul>
 
-    <div class="sidebar-footer">
+    {{-- KELUAR DI POSISI PALING BAWAH --}}
+    {{-- Tambahan pb-lg-3 dan mb-lg-0 akan mengembalikan posisinya ke normal saat di laptop --}}
+    <div class="sidebar-footer mt-auto px-3 pt-3 pb-5 pb-lg-3 mb-4 mb-lg-0">
+        <hr class="text-secondary opacity-25 mt-0 mb-3">
         <form action="{{ route('logout') }}" method="POST">
             @csrf
-            <button type="submit" class="btn btn-logout">
-                <i class="bi bi-box-arrow-right"></i> Keluar
+            <button type="submit" class="btn btn-logout w-100 d-flex align-items-center justify-content-center text-danger fw-bold transition-3d" style="background: rgba(220, 53, 69, 0.1); border-radius: 10px; padding: 10px; border: none;">
+                <i class="bi bi-box-arrow-right me-2"></i> Keluar
             </button>
         </form>
     </div>

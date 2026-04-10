@@ -24,7 +24,6 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-body);
             margin: 0;
-            /* 1. KUNCI: Matikan scroll global di seluruh body */
             overflow: hidden;
             height: 100vh;
         }
@@ -151,23 +150,20 @@
             transition: 0.2s;
         }
 
-        /* --- CONTENT (INI YANG DIROMBAK) --- */
+        /* --- CONTENT --- */
         #main-content {
-            /* 2. Jadikan konten sebagai kotak yang terkunci... */
             position: absolute;
-            top: 80px; /* Mulai dari bawah navbar */
-            left: var(--sidebar-width); /* Mulai dari kanan sidebar */
+            top: 80px; 
+            left: var(--sidebar-width); 
             right: 0;
             bottom: 0;
             padding: 40px;
-            /* 3. ...Lalu biarkan isinya bisa di-scroll ke bawah */
             overflow-y: auto;
             overflow-x: hidden;
             transition: var(--transition);
             scrollbar-width: thin;
         }
 
-        /* Sembunyikan scrollbar bawaan agar rapi */
         #main-content::-webkit-scrollbar { width: 6px; }
         #main-content::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.15); border-radius: 10px; }
 
@@ -176,9 +172,16 @@
             width: var(--sidebar-collapsed-width);
         }
 
+        /* 1. Sembunyikan text saat sidebar ditutup */
         body.sidebar-toggled #sidebar .nav-link span,
-        body.sidebar-toggled #sidebar .brand-text {
+        body.sidebar-toggled #sidebar .brand-text,
+        body.sidebar-toggled #sidebar .logout-text {
             display: none;
+        }
+
+        /* 2. Hilangkan margin pada icon keluar saat tertutup agar pas di tengah */
+        body.sidebar-toggled #sidebar .logout-icon {
+            margin-right: 0 !important; 
         }
 
         body.sidebar-toggled #navbar {
@@ -186,7 +189,6 @@
         }
 
         body.sidebar-toggled #main-content {
-            /* Geser konten utama ke kiri saat sidebar ditutup */
             left: var(--sidebar-collapsed-width);
         }
 
@@ -225,15 +227,12 @@
     <aside id="sidebar">
         <div class="sidebar-brand justify-content-between">
             <div class="d-flex align-items-center">
-                {{-- Container Logo Sekolah --}}
                 <div class="d-flex align-items-center justify-content-center overflow-hidden"
                     style="width: 40px; height: 40px;">
                     <img src="{{ asset('images/logo-sekolah.png') }}" alt="Logo Sekolah" class="img-fluid"
                         style="max-height: 100%; width: auto; object-fit: contain;">
                 </div>
-
-                {{-- Teks Portal Siswa --}}
-                <span class="fw-bold brand-text ms-2">Portal Siswa</span>
+                <span class="fw-bold brand-text ms-2">CBT Al-Huda</span>
             </div>
             <button class="btn btn-link text-dark d-lg-none p-0" id="close-sidebar">
                 <i class="bi bi-x-lg fs-5"></i>
@@ -255,11 +254,13 @@
             </li>
         </ul>
 
-        <div class="p-4 mt-auto border-top">
+        {{-- KELUAR --}}
+        <div class="px-3 pt-3 pb-5 pb-lg-3 mb-5 mb-lg-0 mt-auto border-top">
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
-                <button type="submit" class="btn btn-outline-danger w-100 shadow-sm d-flex align-items-center justify-content-center py-2">
-                    <i class="bi bi-box-arrow-right me-2"></i> Keluar
+                <button type="submit" class="btn btn-outline-danger w-100 shadow-sm d-flex align-items-center justify-content-center py-2" title="Keluar">
+                    <i class="bi bi-box-arrow-right logout-icon me-2"></i>
+                    <span class="logout-text">Keluar</span>
                 </button>
             </form>
         </div>

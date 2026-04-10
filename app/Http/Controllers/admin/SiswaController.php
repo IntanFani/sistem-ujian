@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Imports\SiswaImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class SiswaController extends Controller
 {
@@ -48,7 +49,7 @@ class SiswaController extends Controller
 
         // Proses update massal berdasarkan kelas_id
         $jumlahSiswaDipindah = Siswa::where('kelas_id', $request->kelas_asal)
-                                    ->update(['kelas_id' => $request->kelas_tujuan]);
+            ->update(['kelas_id' => $request->kelas_tujuan]);
 
         // Cek apakah ada data yang berhasil diupdate
         if ($jumlahSiswaDipindah > 0) {
@@ -63,63 +64,70 @@ class SiswaController extends Controller
         $request->validate([
             'nisn'     => 'required|unique:siswas,nisn',
             'nama'     => 'required',
-            'email'    => 'required|email|unique:users,email',
-            'kelas_id' => 'required|exists:kelas,id',
+            'kelas_id' => 'required|exists:kelas,id', // Sesuaikan nama tabel kelas kamu
+            'email'    => 'required|email|unique:users,email', // Validasi email nyala lagi
         ]);
 
-        DB::transaction(function () use ($request) {
-            // 1. Buat User Login (Role: siswa, Password: NISN)
+        // 1. Generate Password Acak 6 Karakter (Kombinasi huruf & angka)
+        $generatedPassword = Str::random(6);
+        // Atau kalau mau password default-nya angka acak: rand(100000, 999999);
+
+        DB::transaction(function () use ($request, $generatedPassword) {
+            // 2. Buat Akun User dengan Email yang diinput
             $user = User::create([
                 'name'     => $request->nama,
                 'email'    => $request->email,
-                'password' => Hash::make($request->nisn), // NISN jadi password default
-                'role'     => 'siswa',
+                'password' => Hash::make($generatedPassword),
+                'role'     => 'siswa' // Sesuaikan dengan sistem role kamu
             ]);
 
-            // 2. Buat Profil Siswa
+            // 3. Simpan Data Siswa dan Password Text-nya
             Siswa::create([
-                'user_id'  => $user->id,
-                'kelas_id' => $request->kelas_id,
-                'nisn'     => $request->nisn,
-                'nama'     => $request->nama,
+                'user_id'       => $user->id,
+                'kelas_id'      => $request->kelas_id,
+                'nisn'          => $request->nisn,
+                'nama'          => $request->nama,
+                'password_text' => $generatedPassword
             ]);
         });
 
-        return back()->with('success', 'Siswa berhasil ditambah! Password default adalah NISN.');
+        return redirect()->route('admin.siswas.index')->with('success', 'Siswa berhasil ditambahkan dan password otomatis dibuat!');
     }
 
     public function update(Request $request, $id)
     {
         $siswa = Siswa::findOrFail($id);
-        $user = $siswa->user; // Ambil akun login terkait
+        $user = $siswa->user;
 
         $request->validate([
             'nisn'     => 'required|unique:siswas,nisn,' . $id,
             'nama'     => 'required',
-            'email'    => 'required|email|unique:users,email,' . $user->id,
             'kelas_id' => 'required|exists:kelas,id',
-            'password' => 'nullable|min:6', // Password boleh kosong kalau nggak mau diubah
+            'email'    => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|min:6', // Untuk reset manual
         ]);
 
         DB::transaction(function () use ($request, $siswa, $user) {
-            // 1. Update Akun Login (User)
             $userData = [
                 'name'  => $request->nama,
                 'email' => $request->email,
             ];
 
-            // Cek kalau admin input password baru
+            $newPasswordText = $siswa->password_text;
+
+            // Kalau admin mengisi form reset password
             if ($request->filled('password')) {
                 $userData['password'] = Hash::make($request->password);
+                $newPasswordText = $request->password;
             }
 
             $user->update($userData);
 
-            // 2. Update Data Profil Siswa
             $siswa->update([
-                'nisn'     => $request->nisn,
-                'nama'     => $request->nama,
-                'kelas_id' => $request->kelas_id,
+                'nisn'          => $request->nisn,
+                'nama'          => $request->nama,
+                'kelas_id'      => $request->kelas_id,
+                'password_text' => $newPasswordText,
             ]);
         });
 
@@ -130,7 +138,7 @@ class SiswaController extends Controller
     {
         // 1. Cari data siswanya
         $siswa = Siswa::findOrFail($id);
-        
+
         // 2. Cari akun user terkait
         $user = $siswa->user;
 
