@@ -157,6 +157,8 @@
 @endsection
 
 @section('scripts')
+{{-- Pastikan SweetAlert sudah di-load di layout utama (admin.blade.php) --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     function deleteExam(id) {
         Swal.fire({

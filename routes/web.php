@@ -88,6 +88,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Route Manajemen ujian (Resource otomatis: index, create, store, edit, update, destroy)
     Route::resource('/exams', ExamController::class);
+    Route::post('/exams/{id}/toggle-status', [ExamController::class, 'toggleStatus'])->name('exams.toggle-status');
+
+    // Rute untuk Import Soal via Excel
+Route::post('/exams/{id}/questions/import', [ExamController::class, 'importQuestions'])->name('exams.questions.import');
 
     // Custom Routes untuk Kelola Soal (Gunakan exam_id agar lebih jelas)
     Route::get('/exams/{exam_id}/questions', [ExamController::class, 'manageQuestions'])->name('exams.questions');

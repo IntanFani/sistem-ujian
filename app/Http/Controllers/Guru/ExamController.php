@@ -11,6 +11,7 @@ use App\Models\ExamSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use App\Imports\QuestionsImport;
 use App\Exports\ExamResultsExport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -31,6 +32,20 @@ class ExamController extends Controller
         $subjects = Subject::all(); 
 
         return view('guru.exams.index', compact('exams', 'classes', 'subjects'));
+    }
+
+    public function toggleStatus($id)
+    {
+        $guruId = Auth::user()->guru->id;
+        
+        // Pastikan hanya ujian milik guru ini yang bisa diubah statusnya
+        $exam = Exam::where('guru_id', $guruId)->findOrFail($id);
+
+        // Jika statusnya 'aktif', ubah jadi 'nonaktif', dan sebaliknya
+        $exam->status = $exam->status == 'aktif' ? 'nonaktif' : 'aktif';
+        $exam->save();
+
+        return redirect()->back()->with('success', 'Status ujian berhasil diperbarui!');
     }
 
     public function store(Request $request)
@@ -57,6 +72,28 @@ class ExamController extends Controller
         // REDIRECT LANGSUNG KE HALAMAN KELOLA SOAL
         return redirect()->route('guru.exams.questions', $ujian->id)
             ->with('success', 'Jadwal berhasil dibuat! Silakan mulai mengisi butir soal.');
+    }
+
+    public function importQuestions(Request $request, $id)
+    {
+        // 1. Validasi file
+        $request->validate([
+            'file_excel' => 'required|mimes:xlsx,xls,csv|max:2048'
+        ]);
+
+        // 2. Keamanan: Pastikan ujian ini milik guru yang sedang login
+        $guruId = Auth::user()->guru->id;
+        $exam = Exam::where('guru_id', $guruId)->findOrFail($id);
+
+        try {
+            // 3. Proses Import (menggunakan class QuestionsImport yang sama dengan Admin)
+            Excel::import(new QuestionsImport($exam->subject_id, $exam->id), $request->file('file_excel'));
+            
+            return redirect()->back()->with('success', 'Data soal dari Excel berhasil diimport!');
+        } catch (\Exception $e) {
+            // Tangkap pesan error jika format Excel salah
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat import: ' . $e->getMessage());
+        }
     }
 
     public function create()
