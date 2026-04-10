@@ -288,11 +288,13 @@ class ExamController extends Controller
 
             $q->answers_count = $answers->count();
             $q->benar_count = $answers->where('is_correct', true)->count();
-            $q->jawab_a_count = $answers->where('answer', 'a')->count();
-            $q->jawab_b_count = $answers->where('answer', 'b')->count();
-            $q->jawab_c_count = $answers->where('answer', 'c')->count();
-            $q->jawab_d_count = $answers->where('answer', 'd')->count();
-            $q->jawab_e_count = $answers->where('answer', 'e')->count();
+            
+            // PERBAIKAN: Gunakan whereIn agar tidak sensitif huruf besar/kecil
+            $q->jawab_a_count = $answers->whereIn('answer', ['a', 'A'])->count();
+            $q->jawab_b_count = $answers->whereIn('answer', ['b', 'B'])->count();
+            $q->jawab_c_count = $answers->whereIn('answer', ['c', 'C'])->count();
+            $q->jawab_d_count = $answers->whereIn('answer', ['d', 'D'])->count();
+            $q->jawab_e_count = $answers->whereIn('answer', ['e', 'E'])->count();
 
             return $q;
         });
