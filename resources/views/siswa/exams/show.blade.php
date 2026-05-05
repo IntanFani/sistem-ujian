@@ -147,7 +147,7 @@
                     </div>
 
                     {{-- Area Teks Soal --}}
-                    <div id="questionContent" class="fs-5 mb-4 text-dark" style="line-height: 1.7;">Memuat soal...</div>
+                    <div id="questionContent" class="fs-5 mb-4 text-dark" style="line-height: 1.7;" dir="auto">Memuat soal...</div>
                     
                     {{-- Area Pilihan Ganda --}}
                     <div id="optionsList"></div>
@@ -204,167 +204,183 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
-        // Data dari Laravel
-        const questions = @json($exam->questions);
-        // Load jawaban yang sudah ada di DB (pluck: ID Soal => Jawaban)
-        let userAnswers = @json($session->answers->pluck('answer', 'question_id'));
-        let currentIndex = 0;
+    // Data dari Laravel
+    const questions = @json($exam->questions);
+    let userAnswers = @json($session->answers->pluck('answer', 'question_id'));
+    let currentIndex = 0;
 
-        const questionContent = document.getElementById('questionContent');
-        const optionsList = document.getElementById('optionsList');
-        const currentNumberLabel = document.getElementById('currentNumber');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
+    const questionContent = document.getElementById('questionContent');
+    const optionsList = document.getElementById('optionsList');
+    const currentNumberLabel = document.getElementById('currentNumber');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
 
-        function renderQuestion(index) {
-            const q = questions[index];
-            currentNumberLabel.innerText = index + 1;
-            questionContent.innerHTML = q.question_text;
+    function renderQuestion(index) {
+        const q = questions[index];
+        currentNumberLabel.innerText = index + 1;
+        
+        // Tampilkan Gambar jika ada
+        let imageHtml = q.gambar ? `<div class="mb-4 text-center"><img src="/storage/${q.gambar}" class="img-fluid rounded-4 border shadow-sm" style="max-height: 250px; width: auto;"></div>` : '';
+        questionContent.innerHTML = imageHtml + q.question_text;
 
-            let optionsHtml = '';
+        let optionsHtml = '';
+        const savedAnswer = userAnswers[q.id] || null;
+
+        // LOGIKA TAMPILAN BERDASARKAN JENIS SOAL
+        if (q.jenis_soal === 'pilihan_ganda' || q.jenis_soal === 'benar_salah') {
+            // Tampilan Pilihan Ganda & Benar/Salah (Radio Button)
             const labels = ['a', 'b', 'c', 'd', 'e'];
-            const savedAnswer = userAnswers[q.id] ? userAnswers[q.id].toLowerCase() : null;
-
+            
             labels.forEach(label => {
                 const optionText = q['opsi_' + label];
                 if (optionText) {
-                    const isChecked = (savedAnswer === label) ? 'checked' : '';
-                    const isSelectedClass = (savedAnswer === label) ? 'selected' : '';
+                    const isChecked = (savedAnswer && savedAnswer.toLowerCase() === label) ? 'checked' : '';
+                    const isSelectedClass = (savedAnswer && savedAnswer.toLowerCase() === label) ? 'selected' : '';
 
                     optionsHtml += `
                         <div class="option-container ${isSelectedClass}" id="container-${label}" onclick="selectOption('${label}', ${q.id})">
                             <input class="form-check-input" type="radio" name="answer" id="opt-${label}" value="${label.toUpperCase()}" ${isChecked}>
-                            <label class="option-label" for="opt-${label}">
+                            <label class="option-label" for="opt-${label}" dir="auto">
                                 <span class="fw-bold text-success me-2">${label.toUpperCase()}.</span> ${optionText}
                             </label>
                         </div>`;
                 }
             });
-            optionsList.innerHTML = optionsHtml;
-
-            // Update warna navigasi (Hijau untuk aktif)
-            document.querySelectorAll('.number-box').forEach(el => el.classList.remove('active'));
-            document.getElementById('num-' + (index + 1)).classList.add('active');
-
-            prevBtn.disabled = (index === 0);
-            
-            // Ubah tombol Next menjadi Akhiri Ujian di soal terakhir
-            if (index === questions.length - 1) {
-                nextBtn.innerHTML = '<i class="bi bi-stop-circle-fill me-1"></i> Akhiri Ujian';
-                nextBtn.className = 'btn btn-danger rounded-pill px-5 py-2 fw-bold shadow-sm transition-3d';
-            } else {
-                nextBtn.innerHTML = 'Selanjutnya <i class="bi bi-arrow-right-circle ms-1"></i>';
-                nextBtn.className = 'btn btn-success rounded-pill px-5 py-2 fw-bold shadow-sm transition-3d';
-            }
+        } 
+        else if (q.jenis_soal === 'essay') {
+            // Tampilan Essay (Textarea)
+            optionsHtml = `
+                <div class="mt-3">
+                    <label class="form-label fw-bold text-muted small mb-2 text-uppercase"><i class="bi bi-pencil-fill me-1"></i> Jawaban Anda:</label>
+                    <textarea class="form-control border-2 rounded-4 p-3 shadow-none fs-5" 
+                        id="essayAnswer" rows="8" dir="auto"
+                        placeholder="Tuliskan jawaban lengkap Anda di sini..."
+                        onblur="saveEssayAnswer(${q.id}, this.value)">${savedAnswer || ''}</textarea>
+                    <div class="text-muted small mt-2">*Jawaban tersimpan otomatis saat Anda mengeklik di luar area kotak teks.</div>
+                </div>`;
         }
 
-        function selectOption(label, questionId) {
-            // Update UI
-            document.querySelectorAll('.option-container').forEach(c => c.classList.remove('selected'));
-            document.getElementById('opt-' + label).checked = true;
-            document.getElementById('container-' + label).classList.add('selected');
-            
-            // Tandai kotak nomor jadi Biru
+        optionsList.innerHTML = optionsHtml;
+
+        // Update Navigasi Aktif
+        document.querySelectorAll('.number-box').forEach(el => el.classList.remove('active'));
+        document.getElementById('num-' + (index + 1)).classList.add('active');
+
+        prevBtn.disabled = (index === 0);
+        
+        if (index === questions.length - 1) {
+            nextBtn.innerHTML = '<i class="bi bi-stop-circle-fill me-1"></i> Akhiri Ujian';
+            nextBtn.className = 'btn btn-danger rounded-pill px-5 py-2 fw-bold shadow-sm transition-3d';
+        } else {
+            nextBtn.innerHTML = 'Selanjutnya <i class="bi bi-arrow-right-circle ms-1"></i>';
+            nextBtn.className = 'btn btn-success rounded-pill px-5 py-2 fw-bold shadow-sm transition-3d';
+        }
+    }
+
+    // Fungsi Simpan Jawaban (PG & Benar/Salah)
+    function selectOption(label, questionId) {
+        document.querySelectorAll('.option-container').forEach(c => c.classList.remove('selected'));
+        document.getElementById('opt-' + label).checked = true;
+        document.getElementById('container-' + label).classList.add('selected');
+        
+        document.getElementById('num-' + (currentIndex + 1)).classList.add('filled');
+        userAnswers[questionId] = label.toUpperCase();
+
+        sendSaveRequest(questionId, label.toUpperCase());
+    }
+
+    // Fungsi Simpan Jawaban (Essay)
+    function saveEssayAnswer(questionId, value) {
+        if (value.trim() !== "") {
             document.getElementById('num-' + (currentIndex + 1)).classList.add('filled');
-            userAnswers[questionId] = label.toUpperCase();
-
-            // Auto-Save via AJAX
-            fetch("{{ route('siswa.exams.save-answer') }}", {
-                method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ question_id: questionId, answer: label.toUpperCase() })
-            });
+            userAnswers[questionId] = value;
+            sendSaveRequest(questionId, value);
         }
+    }
 
-        function jumpTo(number) { 
-            currentIndex = number - 1; 
+    // AJAX Helper untuk Simpan ke Server
+    function sendSaveRequest(questionId, answer) {
+        fetch("{{ route('siswa.exams.save-answer') }}", {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ question_id: questionId, answer: answer })
+        });
+    }
+
+    function jumpTo(number) { 
+        currentIndex = number - 1; 
+        renderQuestion(currentIndex); 
+    }
+    
+    nextBtn.addEventListener('click', () => {
+        if (currentIndex < questions.length - 1) { 
+            currentIndex++; 
+            renderQuestion(currentIndex); 
+        } else { 
+            finishExam(); 
+        }
+    });
+
+    prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) { 
+            currentIndex--; 
             renderQuestion(currentIndex); 
         }
-        
-        nextBtn.addEventListener('click', () => {
-            if (currentIndex < questions.length - 1) { 
-                currentIndex++; 
-                renderQuestion(currentIndex); 
-            } else { 
-                finishExam(); 
-            }
-        });
+    });
 
-        prevBtn.addEventListener('click', () => {
-            if (currentIndex > 0) { 
-                currentIndex--; 
-                renderQuestion(currentIndex); 
-            }
-        });
-
-        // Timer
-        let timeLeft = {{ $exam->duration * 60 }};
-        const timerInterval = setInterval(() => {
-            const h = Math.floor(timeLeft / 3600);
-            const m = Math.floor((timeLeft % 3600) / 60);
-            const s = timeLeft % 60;
-            document.getElementById('timer').innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-            if (timeLeft <= 0) { 
-                clearInterval(timerInterval); 
-                
-                // Auto finish saat waktu habis pakai SweetAlert
-                Swal.fire({
-                    title: 'Waktu Habis!',
-                    text: 'Ujian otomatis diakhiri.',
-                    icon: 'info',
-                    allowOutsideClick: false,
-                    showConfirmButton: false,
-                    timer: 2000
-                }).then(() => {
-                    executeFinish();
-                });
-            }
-            timeLeft--;
-        }, 1000);
-
-        // Fungsi Konfirmasi Akhiri Ujian menggunakan SweetAlert2
-        function finishExam() {
+    // Timer Logic (Tetap sama)
+    let timeLeft = {{ $exam->duration * 60 }};
+    const timerInterval = setInterval(() => {
+        const h = Math.floor(timeLeft / 3600);
+        const m = Math.floor((timeLeft % 3600) / 60);
+        const s = timeLeft % 60;
+        document.getElementById('timer').innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        if (timeLeft <= 0) { 
+            clearInterval(timerInterval); 
             Swal.fire({
-                title: 'Akhiri Ujian?',
-                text: "Pastikan semua soal telah dijawab. Anda tidak bisa kembali setelah ujian diakhiri!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#10b981',
-                cancelButtonColor: '#ef4444',
-                confirmButtonText: 'Ya, Akhiri Ujian!',
-                cancelButtonText: 'Batal',
-                customClass: {
-                    popup: 'rounded-4'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    executeFinish();
-                }
-            });
-        }
-
-        // Fungsi Eksekusi Akhiri Ujian ke Server
-        function executeFinish() {
-            Swal.fire({
-                title: 'Menyimpan Ujian...',
-                text: 'Mohon tunggu sebentar',
+                title: 'Waktu Habis!',
+                text: 'Ujian otomatis diakhiri.',
+                icon: 'info',
                 allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            fetch("{{ route('siswa.exams.finish', $exam->id) }}", {
-                method: "POST",
-                headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}", "Content-Type": "application/json" }
-            }).then(() => window.location.href = "{{ route('siswa.dashboard') }}");
+                showConfirmButton: false,
+                timer: 2000
+            }).then(() => executeFinish());
         }
+        timeLeft--;
+    }, 1000);
 
-        // Render soal pertama saat halaman dimuat
-        renderQuestion(currentIndex);
-    </script>
+    function finishExam() {
+        Swal.fire({
+            title: 'Akhiri Ujian?',
+            text: "Pastikan semua soal telah dijawab. Anda tidak bisa kembali setelah ini!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#ef4444',
+            confirmButtonText: 'Ya, Akhiri Ujian!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) executeFinish();
+        });
+    }
+
+    function executeFinish() {
+        Swal.fire({
+            title: 'Menyimpan Ujian...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        fetch("{{ route('siswa.exams.finish', $exam->id) }}", {
+            method: "POST",
+            headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}", "Content-Type": "application/json" }
+        }).then(() => window.location.href = "{{ route('siswa.dashboard') }}");
+    }
+
+    renderQuestion(currentIndex);
+</script>
 </body>
 </html>

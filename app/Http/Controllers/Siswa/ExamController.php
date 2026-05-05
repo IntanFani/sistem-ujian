@@ -35,9 +35,14 @@ class ExamController extends Controller
         $exam = Exam::findOrFail($id);
         $userId = Auth::id(); // Ambil ID User yang login
 
-        // 1. Verifikasi Token
+        // 1. Verifikasi Token & Kelas Siswa
         if ($exam->token !== strtoupper($request->token)) {
             return back()->with('error', 'Token salah, Fan! Coba cek lagi.');
+        }
+
+        // Pastikan ujian yang diakses sesuai dengan kelas siswa
+        if ($exam->kelas_id !== Auth::user()->siswa->kelas_id) {
+             return back()->with('error', 'Akses ditolak! Ujian ini bukan untuk kelas Anda.');
         }
 
         // 2. Cek session pake user_id
@@ -78,6 +83,14 @@ class ExamController extends Controller
         }
 
         $question = Question::findOrFail($request->question_id);
+
+        // Keamanan (Mencegah IDOR): Pastikan question_id benar-benar bagian dari exam_id di session ini
+        if ($question->exam_id != $session->exam_id) {
+             return response()->json([
+                 'success' => false,
+                 'message' => 'Akses ditolak: Soal ini tidak termasuk dalam ujian Anda.'
+             ], 403);
+        }
 
         // Cek jawaban benar/salah
         $isCorrect = (strtoupper($request->answer) == strtoupper($question->jawaban_benar));

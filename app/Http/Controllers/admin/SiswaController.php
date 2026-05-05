@@ -65,7 +65,6 @@ class SiswaController extends Controller
             'nisn'     => 'required|unique:siswas,nisn',
             'nama'     => 'required',
             'kelas_id' => 'required|exists:kelas,id', // Sesuaikan nama tabel kelas kamu
-            'email'    => 'required|email|unique:users,email', // Validasi email nyala lagi
         ]);
 
         // 1. Generate Password Acak 6 Karakter (Kombinasi huruf & angka)
@@ -73,10 +72,10 @@ class SiswaController extends Controller
         // Atau kalau mau password default-nya angka acak: rand(100000, 999999);
 
         DB::transaction(function () use ($request, $generatedPassword) {
-            // 2. Buat Akun User dengan Email yang diinput
+            // 2. Buat Akun User dengan Email dummy otomatis dari NISN
             $user = User::create([
                 'name'     => $request->nama,
-                'email'    => $request->email,
+                'email'    => $request->nisn . '@cbt.com',
                 'password' => Hash::make($generatedPassword),
                 'role'     => 'siswa' // Sesuaikan dengan sistem role kamu
             ]);
@@ -87,7 +86,7 @@ class SiswaController extends Controller
                 'kelas_id'      => $request->kelas_id,
                 'nisn'          => $request->nisn,
                 'nama'          => $request->nama,
-                'password_text' => $generatedPassword
+                'password_text' => $generatedPassword // Dikembalikan untuk keperluan cetak kartu
             ]);
         });
 
@@ -103,14 +102,13 @@ class SiswaController extends Controller
             'nisn'     => 'required|unique:siswas,nisn,' . $id,
             'nama'     => 'required',
             'kelas_id' => 'required|exists:kelas,id',
-            'email'    => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|min:6', // Untuk reset manual
         ]);
 
         DB::transaction(function () use ($request, $siswa, $user) {
             $userData = [
                 'name'  => $request->nama,
-                'email' => $request->email,
+                'email' => $request->nisn . '@cbt.com', // Update email sesuai format jika NISN berubah
             ];
 
             $newPasswordText = $siswa->password_text;
@@ -127,7 +125,7 @@ class SiswaController extends Controller
                 'nisn'          => $request->nisn,
                 'nama'          => $request->nama,
                 'kelas_id'      => $request->kelas_id,
-                'password_text' => $newPasswordText,
+                'password_text' => $newPasswordText, // Dikembalikan untuk keperluan cetak kartu
             ]);
         });
 
@@ -168,5 +166,21 @@ class SiswaController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
+    }
+
+    // Fungsi Cetak Kartu Ujian
+    public function cetakKartu(Request $request)
+    {
+        $query = Siswa::with('kelas');
+
+        // Jika ada filter kelas
+        if ($request->filled('kelas')) {
+            $query->where('kelas_id', $request->kelas);
+        }
+
+        $siswas = $query->get();
+        $kelas = $request->filled('kelas') ? Kelas::find($request->kelas) : null;
+
+        return view('admin.siswas.cetak_kartu', compact('siswas', 'kelas'));
     }
 }

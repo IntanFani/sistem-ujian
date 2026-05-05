@@ -12,6 +12,9 @@ use App\Models\Question;
 use Illuminate\Support\Facades\Storage;
 use App\Imports\QuestionsImport; 
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\Element\Table;
+use PhpOffice\PhpWord\Element\TextRun;
 
 class ExamController extends Controller
 {
@@ -184,20 +187,21 @@ class ExamController extends Controller
     // 1. Simpan Soal Baru
     public function storeQuestion(Request $request, $id)
     {
-        // 1. Validasi input
+        // 1. Validasi input (Disesuaikan untuk MTs dan multi-tipe soal)
         $request->validate([
+            'jenis_soal'    => 'required|string', // Pastikan input ini dikirim dari frontend
             'question_text' => 'required',
-            'opsi_a' => 'required',
-            'opsi_b' => 'required',
-            'opsi_c' => 'required',
-            'opsi_d' => 'required',
-            'opsi_e' => 'required',
-            'jawaban_benar' => 'required',
-            'gambar' => 'nullable|image|mimes:jpg,png,jpeg|max:2048'
+            'opsi_a'        => 'nullable|string',
+            'opsi_b'        => 'nullable|string',
+            'opsi_c'        => 'nullable|string',
+            'opsi_d'        => 'nullable|string',
+            'opsi_e'        => 'nullable|string',
+            'jawaban_benar' => 'nullable|string',
+            'gambar'        => 'nullable|image|mimes:jpg,png,jpeg|max:2048'
         ]);
 
         // 2. Ambil data Ujian untuk dapet subject_id dan guru_id
-        $exam =Exam::findOrFail($id);
+        $exam = Exam::findOrFail($id);
 
         // 3. Siapkan data untuk disimpan
         $data = $request->all();
@@ -221,15 +225,17 @@ class ExamController extends Controller
     {
         $question = Question::findOrFail($question_id);
 
+        // Validasi disesuaikan seperti saat simpan
         $request->validate([
+            'jenis_soal'    => 'required|string',
             'question_text' => 'required',
-            'opsi_a' => 'required',
-            'opsi_b' => 'required',
-            'opsi_c' => 'required',
-            'opsi_d' => 'required',
-            'opsi_e' => 'required',
-            'jawaban_benar' => 'required',
-            'gambar' => 'nullable|image|mimes:jpg,png,jpeg|max:2048'
+            'opsi_a'        => 'nullable|string',
+            'opsi_b'        => 'nullable|string',
+            'opsi_c'        => 'nullable|string',
+            'opsi_d'        => 'nullable|string',
+            'opsi_e'        => 'nullable|string',
+            'jawaban_benar' => 'nullable|string',
+            'gambar'        => 'nullable|image|mimes:jpg,png,jpeg|max:2048'
         ]);
 
         $data = $request->all();
@@ -248,8 +254,8 @@ class ExamController extends Controller
         return redirect()->back()->with('success', 'Butir soal berhasil diperbarui!');
     }
 
-    // 3. Hapus Soal
-    public function destroyQuestion($id, $question_id)
+    // 3. Hapus Soal (Ubah nama jadi removeQuestions)
+    public function removeQuestion($id, $question_id)
     {
         $question = Question::findOrFail($question_id);
 
@@ -276,5 +282,192 @@ class ExamController extends Controller
     
 
         return redirect()->back()->with('success', 'Soal berhasil diimport!');
+    }
+
+    public function importWord(Request $request, $id)
+    {
+        $request->validate([
+            'file_word' => 'required|mimes:docx|max:5120'
+        ]);
+
+        $exam = Exam::findOrFail($id);
+        $guruId = $exam->guru_id; 
+        $file = $request->file('file_word');
+
+        try {
+            $phpWord = IOFactory::load($file->getPathname());
+            $berhasil = 0;
+
+            $dataSoal = null;
+            $currentMode = null;
+            $tagRegex = '/\[(JENIS|SOAL|OPSI_A|OPSI_B|OPSI_C|OPSI_D|OPSI_E|KUNCI)\]/i';
+
+            foreach ($phpWord->getSections() as $section) {
+                foreach ($section->getElements() as $element) {
+                    $text = trim($this->getElementText($element));
+                    if (empty($text)) continue;
+
+                    if (preg_match($tagRegex, $text, $matches)) {
+                        $tag = strtoupper($matches[1]);
+                        // Buang tag-nya untuk mengambil isi teks di baris yang sama
+                        $content = trim(str_ireplace('['.$tag.']', '', $text));
+
+                        // Jika tag JENIS, berarti mulai soal baru
+                        if ($tag === 'JENIS') {
+                            if ($dataSoal !== null && !empty($dataSoal['soal'])) {
+                                $this->simpanSoalKeDB($exam, $guruId, $dataSoal['jenis'], $dataSoal['soal'], $dataSoal['opsi'], $dataSoal['kunci'], $dataSoal['gambar']);
+                                $berhasil++;
+                            }
+                            
+                            $dataSoal = [
+                                'jenis' => 'pilihan_ganda',
+                                'soal' => '',
+                                'opsi' => [null, null, null, null, null],
+                                'kunci' => null,
+                                'gambar' => null
+                            ];
+                            $currentMode = 'JENIS';
+                        } else {
+                            $currentMode = $tag;
+                        }
+
+                        // Simpan teks yang sebaris dengan tag
+                        if (!empty($content) && $dataSoal !== null) {
+                            $this->assignContentToMode($dataSoal, $currentMode, $content);
+                        }
+                    } else {
+                        // Teks tanpa tag, berarti lanjutan dari mode sebelumnya (baris baru)
+                        if ($dataSoal !== null && $currentMode !== null) {
+                            $this->assignContentToMode($dataSoal, $currentMode, $text, true, $element);
+                        }
+                    }
+
+                    // Ekstraksi Gambar
+                    $imageElement = $this->extractImageFromElement($element);
+                    if ($imageElement !== null && $dataSoal !== null) {
+                        // Hanya ambil gambar pertama untuk soal ini
+                        if (empty($dataSoal['gambar'])) {
+                            try {
+                                $imageData = $imageElement->getImageStringData(true);
+                                $extension = $imageElement->getImageExtension();
+                                $filename = 'exams/word_img_' . uniqid() . '.' . $extension;
+                                \Illuminate\Support\Facades\Storage::disk('public')->put($filename, base64_decode($imageData));
+                                $dataSoal['gambar'] = $filename;
+                            } catch (\Exception $e) {
+                                // Abaikan jika gagal memproses gambar
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Simpan soal yang terakhir
+            if ($dataSoal !== null && !empty($dataSoal['soal'])) {
+                $this->simpanSoalKeDB($exam, $guruId, $dataSoal['jenis'], $dataSoal['soal'], $dataSoal['opsi'], $dataSoal['kunci'], $dataSoal['gambar']);
+                $berhasil++;
+            }
+
+            return redirect()->back()->with('success', "$berhasil Soal berhasil diimport dari format paragraf!");
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal memproses file Word. Pastikan Anda menggunakan Template Baru. Error: ' . $e->getMessage());
+        }
+    }
+
+    private function getElementText($element) {
+        $text = '';
+        if (method_exists($element, 'getElements')) {
+            foreach ($element->getElements() as $child) {
+                if (method_exists($child, 'getText')) {
+                    $text .= $child->getText();
+                }
+            }
+        } elseif (method_exists($element, 'getText')) {
+            $text .= $element->getText();
+        }
+        return $text;
+    }
+
+    private function extractImageFromElement($element) {
+        if ($element instanceof \PhpOffice\PhpWord\Element\Image) {
+            return $element;
+        }
+        if (method_exists($element, 'getElements')) {
+            foreach ($element->getElements() as $child) {
+                $img = $this->extractImageFromElement($child);
+                if ($img !== null) {
+                    return $img;
+                }
+            }
+        }
+        return null;
+    }
+
+    private function assignContentToMode(&$dataSoal, $currentMode, $text, $append = false, $element = null) {
+        $separator = $append ? '<br>' : ' ';
+        if ($currentMode === 'JENIS') {
+            $jenisRaw = strtolower($text);
+            if (str_contains($jenisRaw, 'essay') || str_contains($jenisRaw, 'uraian')) {
+                $dataSoal['jenis'] = 'essay';
+            } elseif (str_contains($jenisRaw, 'benar')) {
+                $dataSoal['jenis'] = 'benar_salah';
+            } else {
+                $dataSoal['jenis'] = 'pilihan_ganda';
+            }
+        } elseif ($currentMode === 'SOAL') {
+            $isOptionList = ($element instanceof \PhpOffice\PhpWord\Element\ListItemRun);
+            $isOptionManual = preg_match('/^([A-Ea-e])[\.\)]\s*(.*)/', $text, $m);
+
+            if ($dataSoal['jenis'] !== 'essay') {
+                if ($isOptionList) {
+                    $found = false;
+                    for ($i = 0; $i < 5; $i++) {
+                        if (empty($dataSoal['opsi'][$i])) {
+                            $dataSoal['opsi'][$i] = trim($text);
+                            $found = true;
+                            break;
+                        }
+                    }
+                    // Jika semua opsi penuh (A-E terisi), berarti list ini bagian dari soal
+                    if (!$found) $dataSoal['soal'] .= empty($dataSoal['soal']) ? $text : $separator . $text;
+                } elseif ($isOptionManual) {
+                    $letter = strtoupper($m[1]);
+                    $idx = ord($letter) - 65; // A=0, B=1, dst.
+                    $dataSoal['opsi'][$idx] = trim($m[2]);
+                } else {
+                    $dataSoal['soal'] .= empty($dataSoal['soal']) ? $text : $separator . $text;
+                }
+            } else {
+                // Untuk Essay, list item otomatis menjadi format list HTML biasa di teks soal
+                $prefix = $isOptionList ? '- ' : '';
+                $dataSoal['soal'] .= empty($dataSoal['soal']) ? $prefix . $text : $separator . $prefix . $text;
+            }
+        } elseif ($currentMode === 'KUNCI') {
+            if ($dataSoal['jenis'] !== 'essay') { // Kunci untuk essay akan ditiadakan (null)
+                $kunciRaw = strtolower(substr(trim($text), 0, 1));
+                if (in_array($kunciRaw, ['a', 'b', 'c', 'd', 'e'])) {
+                    $dataSoal['kunci'] = $kunciRaw;
+                }
+            }
+        }
+    }
+
+    // Fungsi Pembantu untuk merapikan penyimpanan ke DB
+    private function simpanSoalKeDB($exam, $guruId, $jenisSoal, $pertanyaan, $opsi, $kunciJawaban = null, $gambar = null)
+    {
+        Question::create([
+            'exam_id'       => $exam->id,
+            'subject_id'    => $exam->subject_id,
+            'guru_id'       => $guruId,
+            'jenis_soal'    => $jenisSoal,
+            'question_text' => $pertanyaan,
+            'opsi_a'        => $opsi[0] ?? null,
+            'opsi_b'        => $opsi[1] ?? null,
+            'opsi_c'        => $opsi[2] ?? null,
+            'opsi_d'        => $opsi[3] ?? null,
+            'opsi_e'        => $opsi[4] ?? null, 
+            'jawaban_benar' => $kunciJawaban, // Untuk essay akan otomatis berisi null
+            'gambar'        => $gambar
+        ]);
     }
 }

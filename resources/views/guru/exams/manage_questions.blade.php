@@ -33,7 +33,14 @@
                 <button
                     class="btn btn-outline-success rounded-pill px-3 py-2 shadow-sm fw-bold transition-3d bg-white d-flex align-items-center"
                     data-bs-toggle="modal" data-bs-target="#modalImportSoal">
-                    <i class="bi bi-file-earmark-excel-fill me-2"></i>Import
+                    <i class="bi bi-file-earmark-excel-fill me-2"></i>Import Excel
+                </button>
+
+                {{-- TOMBOL IMPORT WORD BARU --}}
+                <button
+                    class="btn btn-outline-primary rounded-pill px-3 py-2 shadow-sm fw-bold transition-3d bg-white d-flex align-items-center"
+                    data-bs-toggle="modal" data-bs-target="#modalImportWord">
+                    <i class="bi bi-file-earmark-word-fill me-2"></i>Import Word
                 </button>
 
                 <button
@@ -75,7 +82,7 @@
                             </div>
 
                             {{-- Teks Pertanyaan --}}
-                            <div class="question-text text-dark mb-3" style="font-size: 1.05rem; line-height: 1.6;">
+                            <div class="question-text text-dark mb-3" style="font-size: 1.05rem; line-height: 1.6;" dir="auto">
                                 {!! $q->question_text !!}
                             </div>
 
@@ -100,7 +107,7 @@
                                                 {{ strtoupper($opt) }}
                                             </div>
                                             <div
-                                                class="option-text small {{ $isCorrect ? 'fw-bold text-success' : 'text-secondary' }} flex-grow-1">
+                                                class="option-text small {{ $isCorrect ? 'fw-bold text-success' : 'text-secondary' }} flex-grow-1" dir="auto">
                                                 {{ $q->{'opsi_' . $opt} }}
                                             </div>
                                             @if ($isCorrect)
@@ -122,22 +129,7 @@
                                 <i class="bi bi-folder-x fs-2"></i>
                             </div>
                             <h5 class="fw-bold text-dark mb-2">Belum ada butir soal.</h5>
-                            <p class="text-secondary small mb-4">Mulai lengkapi bank soal untuk ujian ini dengan menekan
-                                tombol di bawah.</p>
-                            
-                            {{-- TOMBOL KOSONG JUGA DITAMBAH IMPORT --}}
-                            <div class="d-flex justify-content-center gap-2">
-                                <button
-                                    class="btn btn-outline-success rounded-pill px-4 py-2 shadow-sm fw-bold transition-3d bg-white d-inline-flex align-items-center"
-                                    data-bs-toggle="modal" data-bs-target="#modalImportSoal">
-                                    <i class="bi bi-file-earmark-excel-fill me-2"></i>Import Excel
-                                </button>
-                                <button
-                                    class="btn btn-primary rounded-pill px-4 py-2 shadow-sm fw-bold transition-3d border-0 d-inline-flex align-items-center"
-                                    data-bs-toggle="modal" data-bs-target="#modalTambahSoal">
-                                    <i class="bi bi-plus-circle-fill me-2"></i>Tambah Manual
-                                </button>
-                            </div>
+                            <p class="text-secondary small mb-2">Gunakan tombol menu di kanan atas untuk menambahkan soal ke dalam ujian ini.</p>
                         </div>
                     </div>
                 @endforelse
@@ -191,6 +183,57 @@
         </div>
     </div>
 
+    {{-- ========================================================== --}}
+    {{-- MODAL IMPORT WORD (KHUSUS NASKAH DOCX) --}}
+    {{-- ========================================================== --}}
+    <div class="modal fade" id="modalImportWord" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <form action="{{ route('guru.exams.questions.import-word', $exam->id) }}" method="POST" enctype="multipart/form-data" class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                @csrf
+                <div class="modal-header bg-white border-bottom pt-4 px-4 pb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                            <i class="bi bi-file-earmark-word fs-4 text-primary"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold text-dark" style="letter-spacing: 0.5px;">IMPORT NASKAH WORD</h5>
+                            <p class="text-muted small mb-0">Upload file naskah soal berformat .docx</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body p-4" style="background-color: #f8fafc;">
+                    <div class="alert alert-primary border-0 shadow-sm rounded-3 small mb-4 d-flex">
+                        <i class="bi bi-info-circle-fill me-2 fs-5 mt-1"></i>
+                        <div>
+                            <strong>Peringatan Sistem:</strong><br>
+                            Sistem hanya dapat membaca naskah Word yang menggunakan <b>Format Template Baku</b>. Anda wajib mengunduh dan menyalin soal Anda ke dalam template tersebut sebelum mengunggahnya.
+                        </div>
+                    </div>
+
+                    <div class="mb-4 text-center">
+                        <a href="{{ asset('templates/template_soal.docx') }}" class="btn btn-outline-primary rounded-pill px-4 fw-medium bg-white" download>
+                            <i class="bi bi-download me-2"></i> Download Template Word
+                        </a>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-2">Upload File Word (.docx)</label>
+                        <input type="file" name="file_word" class="form-control bg-white border custom-file-input py-2 shadow-none" accept=".docx" required>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-white border-top p-3 px-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-medium text-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm border-0 transition-3d d-flex align-items-center">
+                        <i class="bi bi-cloud-arrow-up-fill me-2"></i> Ekstrak & Import
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 
     {{-- ========================================================== --}}
     {{-- MODAL TAMBAH SOAL --}}
@@ -209,8 +252,7 @@
                             <i class="bi bi-patch-question-fill fs-4 text-primary"></i>
                         </div>
                         <div>
-                            <h5 class="modal-title fw-bold text-dark" style="letter-spacing: 0.5px;">BUAT BUTIR SOAL BARU
-                            </h5>
+                            <h5 class="modal-title fw-bold text-dark" style="letter-spacing: 0.5px;">BUAT BUTIR SOAL BARU</h5>
                             <p class="text-muted small mb-0">Input pertanyaan dan pilihan jawaban secara teliti.</p>
                         </div>
                     </div>
@@ -223,12 +265,25 @@
                         <div class="col-lg-7">
                             <div class="card border-0 shadow-sm rounded-4">
                                 <div class="card-body p-4">
+                                    
+                                    {{-- DROPDOWN JENIS SOAL --}}
+                                    <div class="mb-4">
+                                        <label class="form-label small fw-bold text-muted text-uppercase mb-2">
+                                            <i class="bi bi-ui-checks-grid me-1"></i> Jenis Soal
+                                        </label>
+                                        <select name="jenis_soal" class="form-select bg-light border-0 rounded-3 py-2 shadow-none" required>
+                                            <option value="pilihan_ganda" selected>Pilihan Ganda</option>
+                                            <option value="benar_salah">Benar / Salah</option>
+                                            <option value="essay">Essay / Uraian</option>
+                                        </select>
+                                    </div>
+
                                     <div class="mb-4">
                                         <label class="form-label small fw-bold text-muted text-uppercase mb-2">
                                             <i class="bi bi-chat-left-text me-1"></i> Teks Pertanyaan
                                         </label>
                                         <textarea name="question_text" class="form-control bg-light border-0 rounded-4 p-3 shadow-none custom-textarea"
-                                            rows="10" placeholder="Tuliskan butir soal di sini..." required></textarea>
+                                            rows="8" placeholder="Tuliskan butir soal, pernyataan, atau instruksi essay di sini..." required></textarea>
                                     </div>
 
                                     <div class="mb-2">
@@ -247,33 +302,46 @@
                         <div class="col-lg-5">
                             <div class="card border-0 shadow-sm rounded-4">
                                 <div class="card-body p-4">
-                                    <label class="form-label small fw-bold text-muted text-uppercase mb-3">
-                                        <i class="bi bi-ui-radios me-1"></i> Pilihan Jawaban
-                                    </label>
+                                    
+                                    {{-- BAGIAN PILIHAN JAWABAN (PG & Benar/Salah) --}}
+                                    <div class="section_pilihan_jawaban">
+                                        <label class="form-label small fw-bold text-muted text-uppercase mb-3">
+                                            <i class="bi bi-ui-radios me-1"></i> Pilihan Jawaban
+                                        </label>
 
-                                    @foreach (['a', 'b', 'c', 'd', 'e'] as $opt)
-                                        <div class="mb-3">
-                                            <div class="input-group custom-input-group edit-focus">
-                                                <div class="input-group-text bg-white border-0 px-3">
-                                                    <input class="form-check-input mt-0 custom-radio cursor-pointer"
-                                                        type="radio" name="jawaban_benar" value="{{ $opt }}"
-                                                        required title="Jadikan Kunci Jawaban">
+                                        @foreach (['a', 'b', 'c', 'd', 'e'] as $opt)
+                                            <div class="mb-3 option-group-{{ $opt }}">
+                                                <div class="input-group custom-input-group edit-focus border rounded-3 overflow-hidden shadow-none">
+                                                    <div class="input-group-text bg-white border-0 px-3">
+                                                        <input class="form-check-input mt-0 custom-radio cursor-pointer"
+                                                            type="radio" name="jawaban_benar" value="{{ $opt }}"
+                                                            title="Jadikan Kunci Jawaban">
+                                                    </div>
+                                                    <span class="input-group-text bg-light border-0 fw-bold text-primary pe-1">{{ strtoupper($opt) }}.</span>
+                                                    <input type="text" name="opsi_{{ $opt }}"
+                                                        class="form-control bg-light border-0 shadow-none py-2"
+                                                        placeholder="Teks opsi {{ $opt }}...">
                                                 </div>
-                                                <span
-                                                    class="input-group-text bg-light border-0 fw-bold text-primary pe-1">{{ strtoupper($opt) }}.</span>
-                                                <input type="text" name="opsi_{{ $opt }}"
-                                                    class="form-control bg-light border-0 shadow-none py-2"
-                                                    placeholder="Teks opsi {{ $opt }}..." required>
                                             </div>
-                                        </div>
-                                    @endforeach
+                                        @endforeach
+                                    </div>
 
-                                    <div class="p-3 rounded-3 mt-4"
+                                    {{-- BAGIAN KUNCI JAWABAN ESSAY (BARU) --}}
+                                    <div class="section_kunci_essay" style="display: none;">
+                                        <label class="form-label small fw-bold text-muted text-uppercase mb-3">
+                                            <i class="bi bi-key-fill me-1"></i> Pedoman Jawaban Essay
+                                        </label>
+                                        <textarea class="form-control bg-light border-0 rounded-4 p-3 shadow-none input_kunci_essay" 
+                                            rows="12" placeholder="Tuliskan kunci jawaban atau pedoman penilaian untuk essay ini..."></textarea>
+                                        <small class="text-muted d-block mt-2">Siswa akan menjawab soal ini melalui kolom teks panjang saat ujian.</small>
+                                    </div>
+
+                                    <div class="p-3 rounded-3 mt-4 info-box"
                                         style="background-color: #fffbeb; border: 1px solid #fef08a;">
                                         <p class="mb-0 small text-warning-emphasis"><i
-                                                class="bi bi-exclamation-triangle-fill me-1 text-warning"></i>
-                                            <b>Penting:</b> Jangan lupa memilih salah satu <i>radio button</i> di sebelah
-                                            kiri sebagai kunci jawaban.</p>
+                                                class="bi bi-info-circle-fill me-1 text-warning"></i>
+                                            <span class="info_text">Pilih satu kunci jawaban yang benar.</span>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -324,6 +392,19 @@
                         <div class="col-lg-7">
                             <div class="card border-0 shadow-sm rounded-4">
                                 <div class="card-body p-4">
+
+                                    {{-- DROPDOWN JENIS SOAL --}}
+                                    <div class="mb-4">
+                                        <label class="form-label small fw-bold text-muted text-uppercase mb-2">
+                                            <i class="bi bi-ui-checks-grid me-1"></i> Jenis Soal
+                                        </label>
+                                        <select name="jenis_soal" id="edit_jenis_soal" class="form-select bg-light border-0 rounded-3 py-2 shadow-none" required>
+                                            <option value="pilihan_ganda">Pilihan Ganda</option>
+                                            <option value="benar_salah">Benar / Salah</option>
+                                            <option value="essay">Essay / Uraian</option>
+                                        </select>
+                                    </div>
+
                                     <div class="mb-4">
                                         <label class="form-label small fw-bold text-muted text-uppercase mb-2">
                                             <i class="bi bi-chat-left-text me-1"></i> Teks Pertanyaan
@@ -349,28 +430,49 @@
                         <div class="col-lg-5">
                             <div class="card border-0 shadow-sm rounded-4">
                                 <div class="card-body p-4">
-                                    <label class="form-label small fw-bold text-muted text-uppercase mb-3">
-                                        <i class="bi bi-ui-radios me-1"></i> Pilihan Jawaban
-                                    </label>
+                                    
+                                    {{-- BAGIAN PILIHAN JAWABAN (PG & Benar/Salah) --}}
+                                    <div class="section_pilihan_jawaban">
+                                        <label class="form-label small fw-bold text-muted text-uppercase mb-3">
+                                            <i class="bi bi-ui-radios me-1"></i> Pilihan Jawaban
+                                        </label>
 
-                                    @foreach (['a', 'b', 'c', 'd', 'e'] as $opt)
-                                        <div class="mb-3">
-                                            <div class="input-group custom-input-group edit-focus-warning">
-                                                <div class="input-group-text bg-white border-0 px-3">
-                                                    <input
-                                                        class="form-check-input mt-0 custom-radio cursor-pointer edit-radio-warning"
-                                                        type="radio" name="jawaban_benar"
-                                                        id="edit_kunci_{{ $opt }}" value="{{ $opt }}"
-                                                        required>
+                                        @foreach (['a', 'b', 'c', 'd', 'e'] as $opt)
+                                            <div class="mb-3 option-group-{{ $opt }}">
+                                                <div class="input-group custom-input-group edit-focus-warning border rounded-3 overflow-hidden shadow-none">
+                                                    <div class="input-group-text bg-white border-0 px-3">
+                                                        <input
+                                                            class="form-check-input mt-0 custom-radio cursor-pointer edit-radio-warning"
+                                                            type="radio" name="jawaban_benar"
+                                                            id="edit_kunci_{{ $opt }}" value="{{ $opt }}">
+                                                    </div>
+                                                    <span
+                                                        class="input-group-text bg-light border-0 fw-bold text-dark pe-1">{{ strtoupper($opt) }}.</span>
+                                                    <input type="text" name="opsi_{{ $opt }}"
+                                                        id="edit_opsi_{{ $opt }}"
+                                                        class="form-control bg-light border-0 shadow-none py-2">
                                                 </div>
-                                                <span
-                                                    class="input-group-text bg-light border-0 fw-bold text-dark pe-1">{{ strtoupper($opt) }}.</span>
-                                                <input type="text" name="opsi_{{ $opt }}"
-                                                    id="edit_opsi_{{ $opt }}"
-                                                    class="form-control bg-light border-0 shadow-none py-2" required>
                                             </div>
-                                        </div>
-                                    @endforeach
+                                        @endforeach
+                                    </div>
+
+                                    {{-- BAGIAN KUNCI JAWABAN ESSAY (BARU) --}}
+                                    <div class="section_kunci_essay" style="display: none;">
+                                        <label class="form-label small fw-bold text-muted text-uppercase mb-3">
+                                            <i class="bi bi-key-fill me-1"></i> Pedoman Jawaban Essay
+                                        </label>
+                                        <textarea class="form-control bg-light border-0 rounded-4 p-3 shadow-none input_kunci_essay" 
+                                            rows="12" placeholder="Tuliskan kunci jawaban atau pedoman penilaian..."></textarea>
+                                    </div>
+
+                                    <div class="p-3 rounded-3 mt-4 info-box"
+                                        style="background-color: #fffbeb; border: 1px solid #fef08a;">
+                                        <p class="mb-0 small text-warning-emphasis"><i
+                                                class="bi bi-info-circle-fill me-1 text-warning"></i>
+                                            <span class="info_text">Pastikan semua data terisi dengan benar.</span>
+                                        </p>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
@@ -419,13 +521,96 @@
 
 @section('scripts')
     <script>
+        $(document).ready(function() {
+            // 1. FUNGSI UTAMA UNTUK TOGGLE TAMPILAN BERDASARKAN JENIS SOAL
+            function toggleJenisSoal(modalObj) {
+                const jenis = modalObj.find('select[name="jenis_soal"]').val();
+                const sectionPG = modalObj.find('.section_pilihan_jawaban');
+                const sectionEssay = modalObj.find('.section_kunci_essay');
+                const infoText = modalObj.find('.info_text');
+                const inputEssay = modalObj.find('.input_kunci_essay');
+                const radioKunci = modalObj.find('input[type="radio"]');
+
+                if (jenis === 'essay') {
+                    // Tampilkan area essay, sembunyikan PG
+                    sectionPG.hide();
+                    sectionEssay.show();
+                    
+                    // TUKAR ATRIBUT NAME: Agar textarea yang mengirim data ke 'jawaban_benar'
+                    inputEssay.attr('name', 'jawaban_benar');
+                    radioKunci.attr('name', 'jawaban_benar_unused'); 
+                    
+                    infoText.text("Mode Essay: Masukkan pedoman jawaban pada kotak di atas.");
+                } else {
+                    // Tampilkan PG, sembunyikan essay
+                    sectionPG.show();
+                    sectionEssay.hide();
+                    
+                    // TUKAR BALIK: Agar radio button yang mengirim data ke 'jawaban_benar'
+                    inputEssay.attr('name', 'jawaban_benar_unused');
+                    radioKunci.attr('name', 'jawaban_benar');
+                    
+                    if(jenis === 'benar_salah') {
+                        infoText.text("Mode Benar/Salah: Gunakan Opsi A (Benar) dan B (Salah).");
+                        modalObj.find('.option-group-c, .option-group-d, .option-group-e').hide();
+                    } else {
+                        infoText.text("Mode PG: Isi semua opsi dan pilih satu kunci jawaban.");
+                        modalObj.find('.option-group-c, .option-group-d, .option-group-e').show();
+                    }
+                }
+            }
+
+            // 2. EVENT LISTENER: Saat dropdown jenis soal diubah manual
+            $('select[name="jenis_soal"]').on('change', function() {
+                toggleJenisSoal($(this).closest('.modal'));
+            });
+
+            // 3. EVENT LISTENER: Saat tombol EDIT diklik
+            $('.btn-edit-soal').on('click', function() {
+                const id = $(this).data('id');
+                const jenis = $(this).data('jenis');
+                const text = $(this).data('text');
+                const kunci = $(this).data('kunci');
+                const modal = $('#modalEditSoal');
+                
+                // Isi data dasar
+                modal.find('#edit_jenis_soal').val(jenis);
+                modal.find('#edit_question_text').val(text);
+                modal.find('#edit_opsi_a').val($(this).data('a'));
+                modal.find('#edit_opsi_b').val($(this).data('b'));
+                modal.find('#edit_opsi_c').val($(this).data('c'));
+                modal.find('#edit_opsi_d').val($(this).data('d'));
+                modal.find('#edit_opsi_e').val($(this).data('e'));
+
+                // Reset semua pilihan radio
+                modal.find('input[type="radio"]').prop('checked', false);
+
+                // Jalankan fungsi toggle agar tampilan sesuai jenis soal
+                toggleJenisSoal(modal);
+
+                // Jika essay, isi textarea kunci. Jika PG, centang radio.
+                if (jenis === 'essay') {
+                    modal.find('.input_kunci_essay').val(kunci);
+                } else if (kunci) {
+                    modal.find(`#edit_kunci_${kunci}`).prop('checked', true);
+                }
+
+                // Update Action Form
+                let updateUrl = "{{ route('guru.exams.questions.update', ['id' => $exam->id, 'question_id' => ':qid']) }}";
+                modal.find('#formEditSoal').attr('action', updateUrl.replace(':qid', id));
+                
+                modal.modal('show');
+            });
+        });
+
+        // 4. FUNGSI DELETE (Tetap sama)
         window.confirmDeleteQuestion = function(questionId) {
             let deleteUrl = "{{ route('guru.exams.questions.remove', ['question_id' => ':id']) }}";
             deleteUrl = deleteUrl.replace(':id', questionId);
 
             Swal.fire({
-                title: 'Hapus Soal ini?',
-                text: "Butir soal dan pilihan jawaban akan dihapus permanen!",
+                title: 'Hapus Soal?',
+                text: "Data akan dihapus permanen!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
@@ -438,35 +623,13 @@
                     form.action = deleteUrl;
                     form.method = 'POST';
                     form.innerHTML = `
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="_method" value="DELETE">
-                `;
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="_method" value="DELETE">
+                    `;
                     document.body.appendChild(form);
                     form.submit();
                 }
             });
         };
-
-        $(document).ready(function() {
-            $('.btn-edit-soal').on('click', function() {
-                const id = $(this).data('id');
-                const text = $(this).data('text');
-                const kunci = $(this).data('kunci');
-
-                $('#edit_question_text').val(text);
-                $('#edit_opsi_a').val($(this).data('a'));
-                $('#edit_opsi_b').val($(this).data('b'));
-                $('#edit_opsi_c').val($(this).data('c'));
-                $('#edit_opsi_d').val($(this).data('d'));
-                $('#edit_opsi_e').val($(this).data('e'));
-
-                $(`#edit_kunci_${kunci}`).prop('checked', true);
-
-                let updateUrl = "{{ route('guru.exams.questions.update', ['id' => $exam->id, 'question_id' => ':qid']) }}";
-                $('#formEditSoal').attr('action', updateUrl.replace(':qid', id));
-
-                $('#modalEditSoal').modal('show');
-            });
-        });
     </script>
 @endsection

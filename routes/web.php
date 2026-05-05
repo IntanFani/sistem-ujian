@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\ReportController as AdminReportController;
 
 
 
+
 // Redirection awal
 
 Route::get('/', function () { return redirect('/login'); });
@@ -45,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/kelas', KelasController::class)->names('kelas');
         Route::post('/siswas/naik-kelas', [SiswaController::class, 'prosesNaikKelas'])->name('siswas.naik-kelas');
         Route::post('/siswas/import', [SiswaController::class, 'importExcel'])->name('siswas.import');
+        Route::get('/siswas/cetak-kartu', [SiswaController::class, 'cetakKartu'])->name('siswas.cetak-kartu');
         Route::resource('/siswas', SiswaController::class)->names('siswas');
 
        // Manajemen Ujian oleh Admin
@@ -59,8 +61,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/exams/{id}/questions', [AdminExamController::class, 'questions'])->name('exams.questions');
         Route::post('/exams/{id}/questions', [AdminExamController::class, 'storeQuestion'])->name('exams.questions.store');
         Route::put('/exams/{id}/questions/{question_id}', [AdminExamController::class, 'updateQuestion'])->name('exams.questions.update');
-        Route::delete('/exams/{id}/questions/{question_id}', [AdminExamController::class, 'destroyQuestion'])->name('exams.questions.destroy');
+       Route::delete('/exams/{id}/questions/{question_id}', [AdminExamController::class, 'removeQuestion'])->name('exams.questions.remove');
         Route::post('/exams/{id}/questions/import', [AdminExamController::class, 'importQuestions'])->name('exams.questions.import');
+        Route::post('/exams/{id}/questions/import-word', [AdminExamController::class, 'importWord'])->name('exams.questions.import-word');
 
         // Tombol Aksi Cepat
         Route::post('/exams/{id}/toggle-status', [AdminExamController::class, 'toggleStatus'])->name('exams.toggle-status');
@@ -91,14 +94,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/exams/{id}/toggle-status', [ExamController::class, 'toggleStatus'])->name('exams.toggle-status');
 
     // Rute untuk Import Soal via Excel
-Route::post('/exams/{id}/questions/import', [ExamController::class, 'importQuestions'])->name('exams.questions.import');
+    Route::post('/exams/{id}/questions/import', [ExamController::class, 'importQuestions'])->name('exams.questions.import');
 
-    // Custom Routes untuk Kelola Soal (Gunakan exam_id agar lebih jelas)
+    // Routes untuk Kelola Soal (Gunakan exam_id agar lebih jelas)
     Route::get('/exams/{exam_id}/questions', [ExamController::class, 'manageQuestions'])->name('exams.questions');
     Route::post('/exams/{exam_id}/questions', [ExamController::class, 'storeQuestions'])->name('exams.questions.store');
     Route::delete('/exams/questions/{question_id}/remove', [ExamController::class, 'removeQuestion'])->name('exams.questions.remove');
     Route::put('/exams/{id}/questions/{question_id}', [ExamController::class, 'updateQuestion'])->name('exams.questions.update');
     Route::post('/exams/{id}/questions/import', [ExamController::class, 'importQuestions'])->name('exams.questions.import');
+    // Rute untuk Import Soal via Word
+    Route::post('/exams/{id}/questions/import-word', [ExamController::class, 'importWord'])->name('exams.questions.import-word');
 
     // Manajemen Hasil
     Route::get('/results', [ExamController::class, 'results'])->name('results.index');

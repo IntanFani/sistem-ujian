@@ -19,6 +19,12 @@
             </div>
 
             <div class="d-flex gap-2">
+                {{-- Tombol Cetak Kartu --}}
+                <a href="{{ route('admin.siswas.cetak-kartu', ['kelas' => request('kelas')]) }}" target="_blank"
+                    class="btn btn-primary rounded-pill px-4 py-2 shadow-sm transition-3d d-flex align-items-center fw-bold">
+                    <i class="bi bi-printer-fill me-2"></i> Cetak Kartu
+                </a>
+
                 {{-- Tombol Import Excel --}}
                 <button type="button"
                     class="btn btn-excel-outline fw-bold rounded-pill px-4 py-2 shadow-sm transition-3d d-flex align-items-center"
@@ -35,37 +41,47 @@
             </div>
         </div>
 
-        {{-- Toolbar Filter --}}
-        <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
-            <form action="{{ route('admin.siswas.index') }}" method="GET" id="filterForm" class="m-0">
-                <div class="row g-2 align-items-center">
-                    <div class="col-auto">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-0 me-2"><i
-                                class="bi bi-funnel-fill text-primary me-1"></i> Filter Kelas:</label>
-                    </div>
-                    <div class="col-md-4 col-lg-3">
-                        <select name="kelas"
-                            class="form-select bg-light border-0 shadow-none cursor-pointer rounded-pill px-3"
-                            onchange="document.getElementById('filterForm').submit()">
-                            <option value="">-- Semua Kelas --</option>
-                            @foreach ($kelases as $k)
-                                <option value="{{ $k->id }}" {{ request('kelas') == $k->id ? 'selected' : '' }}>
-                                    {{ $k->nama_kelas }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    @if (request('kelas'))
-                        <div class="col-auto">
-                            <a href="{{ route('admin.siswas.index') }}"
-                                class="btn btn-sm btn-light rounded-pill text-danger px-3 shadow-sm transition-3d">
-                                <i class="bi bi-x-circle me-1"></i> Reset
-                            </a>
+        {{-- Toolbar Filter Modern --}}
+        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" style="background: linear-gradient(145deg, #ffffff, #f8fafc);">
+            <div class="card-body p-3 p-md-4">
+                <form action="{{ route('admin.siswas.index') }}" method="GET" id="filterForm" class="m-0">
+                    <div class="row align-items-center justify-content-between g-3">
+                        <div class="col-12 col-md-auto d-flex align-items-center">
+                            <div class="icon-shape bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 45px; height: 45px;">
+                                <i class="bi bi-funnel-fill fs-5"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark" style="letter-spacing: 0.5px;">Filter Data</h6>
+                                <small class="text-muted">Tampilkan siswa berdasarkan kelas</small>
+                            </div>
                         </div>
-                    @endif
-                </div>
-            </form>
+
+                        <div class="col-12 col-md-auto d-flex align-items-center gap-2">
+                            <div class="position-relative" style="min-width: 250px;">
+                                <i class="bi bi-building position-absolute top-50 start-0 translate-middle-y ms-3 text-primary"></i>
+                                <select name="kelas"
+                                    class="form-select custom-filter-select border shadow-sm cursor-pointer fw-medium"
+                                    onchange="document.getElementById('filterForm').submit()">
+                                    <option value="" class="text-muted">-- Tampilkan Semua Kelas --</option>
+                                    @foreach ($kelases as $k)
+                                        <option value="{{ $k->id }}" {{ request('kelas') == $k->id ? 'selected' : '' }} class="text-dark">
+                                            {{ $k->nama_kelas }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            @if (request('kelas'))
+                                <a href="{{ route('admin.siswas.index') }}"
+                                    class="btn btn-sm btn-outline-danger shadow-sm transition-3d d-flex align-items-center justify-content-center px-3 rounded-pill ms-2"
+                                    title="Reset Filter">
+                                    <i class="bi bi-x-circle me-1"></i> Reset
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
 
         {{-- Tabel Data --}}
@@ -102,9 +118,14 @@
                                     <div class="small bg-light p-2 rounded-3 border">
                                         <div class="text-primary fw-bold"><i class="bi bi-person me-1"></i> U:
                                             {{ $s->nisn }}</div>
-                                        {{-- Pastikan kamu punya kolom 'password_text' di tabel siswas untuk menyimpan raw password --}}
-                                        <div class="text-danger fw-bold mt-1"><i class="bi bi-key me-1"></i> P:
-                                            {{ $s->password_text ?? 'Otomatis' }}</div>
+                                        <div class="text-danger fw-bold mt-1 d-flex align-items-center">
+                                            <i class="bi bi-key me-1"></i> P: 
+                                            <span class="ms-1" id="pw-text-{{ $s->id }}">••••••</span>
+                                            <span class="d-none" id="pw-real-{{ $s->id }}">{{ $s->password_text ?? 'Otomatis' }}</span>
+                                            <button class="btn btn-sm btn-link text-muted p-0 ms-2" onclick="togglePassword({{ $s->id }})">
+                                                <i class="bi bi-eye-fill" id="pw-icon-{{ $s->id }}"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="text-end pe-4">
@@ -210,13 +231,6 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-12 mt-3">
-                                <label class="form-label small fw-bold text-primary text-uppercase mb-2"><i
-                                        class="bi bi-envelope-at me-1"></i> Email Siswa</label>
-                                <input type="email" name="email"
-                                    class="form-control bg-white border custom-input py-2 shadow-none"
-                                    placeholder="siswa@cbt.com" required>
-                            </div>
                         </div>
                     </div>
                     <div class="modal-footer bg-white border-top p-3 px-4">
@@ -276,13 +290,6 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-12 mt-3">
-                                <label class="form-label small fw-bold text-primary text-uppercase mb-2"><i
-                                        class="bi bi-envelope-at me-1"></i> Email Siswa</label>
-                                <input type="email" name="email" id="edit_email"
-                                    class="form-control bg-white border custom-input py-2 shadow-none focus-warning"
-                                    required>
-                            </div>
                         </div>
                         <div class="row g-3 mb-2">
                             <div class="col-md-12">
@@ -341,7 +348,7 @@
                             <i class="bi bi-info-circle-fill fs-5 me-3 text-info"></i>
                             <div>
                                 Pastikan format Excel Anda memiliki baris judul kolom: <br>
-                                <b class="text-dark">nama, nisn, kelas, email</b> pada baris pertama.<br>
+                                <b class="text-dark">nama, nisn, kelas</b> pada baris pertama.<br>
                                 <div class="mt-1 text-muted" style="font-size: 0.75rem;">
                                     * Password akan digenerate otomatis oleh sistem.
                                 </div>
@@ -436,6 +443,26 @@
             border-color: #107c41;
             box-shadow: 0 8px 15px rgba(16, 124, 65, 0.2) !important;
         }
+
+        .custom-filter-select {
+            height: 40px;
+            border-radius: 8px;
+            padding-left: 2.5rem;
+            background-color: #ffffff;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .custom-filter-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .custom-filter-select:hover {
+            border-color: #0d6efd;
+            background-color: #f8fafc;
+        }
     </style>
 @endsection
 
@@ -477,6 +504,27 @@
                     document.getElementById('delete-form-' + id).submit();
                 }
             });
+        }
+
+        // Fungsi Toggle Password
+        function togglePassword(id) {
+            let pwText = document.getElementById('pw-text-' + id);
+            let pwReal = document.getElementById('pw-real-' + id);
+            let pwIcon = document.getElementById('pw-icon-' + id);
+
+            if (pwText.classList.contains('d-none')) {
+                // Sembunyikan password
+                pwText.classList.remove('d-none');
+                pwReal.classList.add('d-none');
+                pwIcon.classList.remove('bi-eye-slash-fill');
+                pwIcon.classList.add('bi-eye-fill');
+            } else {
+                // Tampilkan password
+                pwText.classList.add('d-none');
+                pwReal.classList.remove('d-none');
+                pwIcon.classList.remove('bi-eye-fill');
+                pwIcon.classList.add('bi-eye-slash-fill');
+            }
         }
     </script>
 @endsection
