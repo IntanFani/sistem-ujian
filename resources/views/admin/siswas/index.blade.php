@@ -101,7 +101,7 @@
                     <tbody>
                         @forelse($siswas as $index => $s)
                             <tr class="transition-3d-row">
-                                <td class="ps-4 text-muted fw-medium">{{ $index + 1 }}</td>
+                                <td class="ps-4 text-muted fw-medium">{{ $siswas->firstItem() + $index }}</td>
                                 <td>
                                     <div class="fw-bold text-dark fs-6">{{ $s->nama }}</div>
                                 </td>
@@ -172,6 +172,18 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+            
+            {{-- Modern Pagination --}}
+            <div class="card-footer bg-white border-top py-3 px-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                    <div class="text-muted small order-2 order-md-1">
+                        Menampilkan <span class="fw-bold text-dark">{{ $siswas->firstItem() ?? 0 }}</span> sampai <span class="fw-bold text-dark">{{ $siswas->lastItem() ?? 0 }}</span> dari <span class="fw-bold text-dark">{{ $siswas->total() }}</span> siswa
+                    </div>
+                    <div class="order-1 order-md-2">
+                        {{ $siswas->appends(request()->query())->links('pagination::bootstrap-5') }}
+                    </div>
+                </div>
             </div>
         </div>
 

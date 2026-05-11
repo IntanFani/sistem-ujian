@@ -207,6 +207,7 @@
     // Data dari Laravel
     const questions = @json($exam->questions);
     let userAnswers = @json($session->answers->pluck('answer', 'question_id'));
+    const sessionId = {{ $session->id }};
     let currentIndex = 0;
 
     const questionContent = document.getElementById('questionContent');
@@ -306,7 +307,7 @@
                 "X-CSRF-TOKEN": "{{ csrf_token() }}",
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ question_id: questionId, answer: answer })
+            body: JSON.stringify({ session_id: sessionId, question_id: questionId, answer: answer })
         });
     }
 

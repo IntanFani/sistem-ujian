@@ -22,15 +22,16 @@ class SiswaController extends Controller
         // Mengambil data kelas untuk dropdown filter dan form
         $kelases = Kelas::all();
 
-        // Query data siswa dengan filter dinamis
-        $query = Siswa::with(['kelas', 'user'])->latest();
+        // Query data siswa dengan filter dinamis - Diurutkan berdasarkan Nama (A-Z)
+        $query = Siswa::with(['kelas', 'user'])->orderBy('nama', 'asc');
 
         // Jika ada request filter 'kelas' di URL, jalankan filter ini
         if ($request->filled('kelas')) {
             $query->where('kelas_id', $request->kelas);
         }
 
-        $siswas = $query->get();
+        // Gunakan paginate() untuk membatasi jumlah data per halaman
+        $siswas = $query->paginate(25);
 
         return view('admin.siswas.index', compact('siswas', 'kelases'));
     }
@@ -168,10 +169,9 @@ class SiswaController extends Controller
         }
     }
 
-    // Fungsi Cetak Kartu Ujian
     public function cetakKartu(Request $request)
     {
-        $query = Siswa::with('kelas');
+        $query = Siswa::with('kelas')->orderBy('nama', 'asc');
 
         // Jika ada filter kelas
         if ($request->filled('kelas')) {

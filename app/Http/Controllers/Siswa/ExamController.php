@@ -68,11 +68,22 @@ class ExamController extends Controller
 
     public function saveAnswer(Request $request)
     {
-        // Cari session yang sedang AKTIF (completed_at masih NULL)
-        $session = ExamSession::where('user_id', Auth::id())
-            ->whereNull('completed_at')
-            ->latest()
-            ->first();
+        // 1. Ambil session dari request jika ada (ini sangat menghemat query DB)
+        $session = null;
+        if ($request->has('session_id')) {
+            $session = ExamSession::where('id', $request->session_id)
+                ->where('user_id', Auth::id())
+                ->whereNull('completed_at')
+                ->first();
+        }
+
+        // 2. Fallback: Cari session yang sedang AKTIF jika session_id tidak dikirim
+        if (!$session) {
+            $session = ExamSession::where('user_id', Auth::id())
+                ->whereNull('completed_at')
+                ->latest()
+                ->first();
+        }
 
         // Jika session tidak ketemu, jangan lanjut (biar gak error 500)
         if (!$session) {
@@ -92,8 +103,16 @@ class ExamController extends Controller
              ], 403);
         }
 
-        // Cek jawaban benar/salah
-        $isCorrect = (strtoupper($request->answer) == strtoupper($question->jawaban_benar));
+        // Simpan jawaban (perhatikan essay jangan di-uppercase)
+        $answerValue = $request->answer;
+        $isCorrect = false;
+
+        if ($question->jenis_soal === 'essay') {
+            $isCorrect = false; // Essay butuh penilaian manual oleh guru nantinya
+        } else {
+            $answerValue = strtoupper($answerValue);
+            $isCorrect = ($answerValue == strtoupper($question->jawaban_benar));
+        }
 
         // Simpan ke tabel exam_answers
         ExamAnswer::updateOrCreate(
@@ -102,7 +121,7 @@ class ExamController extends Controller
                 'question_id'     => $request->question_id,
             ],
             [
-                'answer'     => strtoupper($request->answer),
+                'answer'     => $answerValue,
                 'is_correct' => $isCorrect
             ]
         );
@@ -137,27 +156,34 @@ class ExamController extends Controller
             ->firstOrFail();
 
         // 2. LOGIKA HITUNG NILAI
-        $totalSoal = $session->exam->questions->count();
+        // Pisahkan soal otomatis (PG/Benar Salah) dan soal manual (Essay)
+        $soalOtomatis = $session->exam->questions->whereIn('jenis_soal', ['pilihan_ganda', 'benar_salah']);
+        $totalSoalOtomatis = $soalOtomatis->count();
+        $adaEssay = $session->exam->questions->where('jenis_soal', 'essay')->count() > 0;
 
         // Hitung berapa yang is_correct-nya bernilai 1 (True) di tabel exam_answers
         $jawabanBenar = $session->answers->where('is_correct', 1)->count();
 
-        // Rumus: (Benar / Total Soal) * 100
-        // Kita pake round biar gak kepanjangan komanya
+        // Rumus: (Benar / Total Soal Otomatis) * 100
         $score = 0;
-        if ($totalSoal > 0) {
-            $score = ($jawabanBenar / $totalSoal) * 100;
+        if ($totalSoalOtomatis > 0) {
+            $score = ($jawabanBenar / $totalSoalOtomatis) * 100;
         }
 
         // 3. Simpan ke Database
         $session->update([
             'completed_at' => now(),
-            'score'        => round($score, 2), // Contoh: 85.50
+            'score'        => round($score, 2), // Nilai sementara (PG saja)
         ]);
+
+        $pesan = 'Ujian selesai! Nilai PG kamu: ' . round($score, 2);
+        if ($adaEssay) {
+            $pesan .= '. (Jawaban Essay menunggu penilaian guru)';
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Ujian selesai! Nilai kamu: ' . round($score, 2)
+            'message' => $pesan
         ]);
     }
 

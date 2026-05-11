@@ -58,40 +58,49 @@
                             
                             {{-- KOLOM BARU: Jumlah Siswa Dinamis --}}
                             <td class="text-center">
-                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2 rounded-pill fw-medium">
-                                    <i class="bi bi-people-fill me-1"></i> 
-                                    {{-- Asumsi relasi di model Kelas bernama 'siswa' --}}
-                                    {{ $item->siswa->count() ?? 0 }} Siswa
-                                </span>
+                                <a href="{{ route('admin.siswas.index', ['kelas' => $item->id]) }}" class="text-decoration-none">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2 rounded-pill fw-medium transition-3d">
+                                        <i class="bi bi-people-fill me-1"></i> 
+                                        {{-- Asumsi relasi di model Kelas bernama 'siswa' --}}
+                                        {{ $item->siswa->count() ?? 0 }} Siswa
+                                    </span>
+                                </a>
                             </td>
 
-                            <td class="text-end pe-4">
-                                <div class="d-flex justify-content-end gap-2">
-                                    {{-- Tombol Edit --}}
-                                    <button class="btn btn-sm btn-outline-warning rounded-3 transition-3d d-flex align-items-center" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#editKelasModal"
-                                        data-id="{{ $item->id }}"
-                                        data-nama="{{ $item->nama_kelas }}"
-                                        data-guru-id="{{ $item->guru_id }}"
-                                        title="Edit Kelas">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        {{-- Tombol Kelola Siswa --}}
+                                        <a href="{{ route('admin.siswas.index', ['kelas' => $item->id]) }}" 
+                                            class="btn btn-sm btn-outline-primary rounded-3 transition-3d d-flex align-items-center" 
+                                            title="Kelola Siswa">
+                                            <i class="bi bi-people-fill"></i>
+                                        </a>
 
-                                    {{-- Tombol Hapus --}}
-                                    <button class="btn btn-sm btn-outline-danger rounded-3 transition-3d d-flex align-items-center" 
-                                        onclick="hapusKelas({{ $item->id }})"
-                                        title="Hapus Kelas">
-                                        <i class="bi bi-trash3"></i>
-                                    </button>
+                                        {{-- Tombol Edit --}}
+                                        <button class="btn btn-sm btn-outline-warning rounded-3 transition-3d d-flex align-items-center" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editKelasModal"
+                                            data-id="{{ $item->id }}"
+                                            data-nama="{{ $item->nama_kelas }}"
+                                            data-guru-id="{{ $item->guru_id }}"
+                                            title="Edit Kelas">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
 
-                                    {{-- Form Hapus --}}
-                                    <form id="delete-form-{{ $item->id }}" action="{{ route('admin.kelas.destroy', $item->id) }}" method="POST" class="d-none">
-                                        @csrf
-                                        @method('DELETE')
-                                    </form>
-                                </div>
-                            </td>
+                                        {{-- Tombol Hapus --}}
+                                        <button class="btn btn-sm btn-outline-danger rounded-3 transition-3d d-flex align-items-center" 
+                                            onclick="hapusKelas({{ $item->id }})"
+                                            title="Hapus Kelas">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+
+                                        {{-- Form Hapus --}}
+                                        <form id="delete-form-{{ $item->id }}" action="{{ route('admin.kelas.destroy', $item->id) }}" method="POST" class="d-none">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                    </div>
+                                </td>
                         </tr>
                     @empty
                         <tr>
