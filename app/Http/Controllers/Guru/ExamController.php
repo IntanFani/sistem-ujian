@@ -25,8 +25,10 @@ class ExamController extends Controller
         // Pastikan relasi 'guru' ada di model User
         $guruId = Auth::user()->guru->id;
         
+        // Eager load only kelas and the count of questions to reduce PHP memory load
         $exams = Exam::where('guru_id', $guruId)
-            ->with(['kelas', 'questions']) // subject biasanya nempel di Exam
+            ->with(['kelas'])
+            ->withCount('questions')
             ->latest()
             ->get();
 
@@ -317,34 +319,43 @@ class ExamController extends Controller
 
     public function analysis($id)
     {
-        $exam = Exam::findOrFail($id);
+        $exam = Exam::select('id', 'title', 'subject_id')->findOrFail($id);
         
         // Ambil ID sesi ujian yang sudah selesai (completed_at tidak null)
         $sessionIds = ExamSession::where('exam_id', $id)
                                 ->whereNotNull('completed_at')
-                                ->pluck('id');
+                                ->pluck('id')
+                                ->toArray();
                                 
         $total_peserta = count($sessionIds);
 
-        // Ambil semua pertanyaan pada ujian ini, lalu hitung statistik jawabannya
-        $questions = Question::where('exam_id', $id)->get()->map(function ($q) use ($sessionIds) {
-            // Mengambil semua jawaban siswa untuk pertanyaan ini dari tabel exam_answers
-            $answers = \App\Models\ExamAnswer::whereIn('exam_session_id', $sessionIds)
-                                            ->where('question_id', $q->id)
-                                            ->get();
+        // OPTIMASI: Selesaikan N+1 query loop. Tarik semua jawaban siswa dalam 1 single query
+        // lalu kelompokkan berdasarkan question_id di memori PHP menggunakan Collection.
+        $allAnswers = \App\Models\ExamAnswer::whereIn('exam_session_id', $sessionIds)
+            ->select('id', 'exam_session_id', 'question_id', 'answer', 'is_correct')
+            ->get()
+            ->groupBy('question_id');
 
-            $q->answers_count = $answers->count();
-            $q->benar_count = $answers->where('is_correct', true)->count();
-            
-            // PERBAIKAN: Gunakan whereIn agar tidak sensitif huruf besar/kecil
-            $q->jawab_a_count = $answers->whereIn('answer', ['a', 'A'])->count();
-            $q->jawab_b_count = $answers->whereIn('answer', ['b', 'B'])->count();
-            $q->jawab_c_count = $answers->whereIn('answer', ['c', 'C'])->count();
-            $q->jawab_d_count = $answers->whereIn('answer', ['d', 'D'])->count();
-            $q->jawab_e_count = $answers->whereIn('answer', ['e', 'E'])->count();
+        // Ambil semua pertanyaan pada ujian ini, lalu hitung statistik jawabannya dari memori
+        $questions = Question::where('exam_id', $id)
+            ->select('id', 'jenis_soal', 'question_text', 'opsi_a', 'opsi_b', 'opsi_c', 'opsi_d', 'opsi_e', 'jawaban_benar')
+            ->get()
+            ->map(function ($q) use ($allAnswers) {
+                // Ambil jawaban untuk soal ini dari data yang sudah di-group di memori
+                $answers = $allAnswers->get($q->id, collect());
 
-            return $q;
-        });
+                $q->answers_count = $answers->count();
+                $q->benar_count = $answers->where('is_correct', true)->count();
+                
+                // Case-insensitive check di PHP memory
+                $q->jawab_a_count = $answers->filter(fn($ans) => strcasecmp($ans->answer, 'a') === 0)->count();
+                $q->jawab_b_count = $answers->filter(fn($ans) => strcasecmp($ans->answer, 'b') === 0)->count();
+                $q->jawab_c_count = $answers->filter(fn($ans) => strcasecmp($ans->answer, 'c') === 0)->count();
+                $q->jawab_d_count = $answers->filter(fn($ans) => strcasecmp($ans->answer, 'd') === 0)->count();
+                $q->jawab_e_count = $answers->filter(fn($ans) => strcasecmp($ans->answer, 'e') === 0)->count();
+
+                return $q;
+            });
 
         return view('guru.results.analysis', compact('exam', 'questions', 'total_peserta'));
     }

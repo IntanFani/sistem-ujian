@@ -82,7 +82,7 @@
                                     <div class="text-dark small"><i class="bi bi-clock me-1 text-primary"></i>
                                         {{ $exam->duration }} Menit</div>
                                     <div class="text-muted small mt-1"><i class="bi bi-collection-play me-1"></i>
-                                        {{ $exam->questions->count() ?? 0 }} Soal</div>
+                                        {{ $exam->questions_count ?? 0 }} Soal</div>
                                 </td>
                                 <td class="text-center">
                                     @if ($exam->status == 'aktif')

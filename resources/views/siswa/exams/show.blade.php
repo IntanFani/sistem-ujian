@@ -100,6 +100,15 @@
             .btn-finish-exam { padding: 6px 16px !important; font-size: 0.85rem !important; }
             .school-logo { height: 32px !important; }
         }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .spin-animation {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
     </style>
 </head>
 
@@ -120,6 +129,9 @@
 
             {{-- Kanan: Timer & Tombol Selesai --}}
             <div class="d-flex align-items-center gap-2 gap-md-3">
+                <div id="saveStatus" class="d-flex align-items-center badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-medium" style="font-size: 0.85rem;">
+                    <i id="saveStatusIcon" class="bi bi-cloud-check-fill me-1"></i> <span id="saveStatusText">Semua jawaban tersimpan</span>
+                </div>
                 <div class="timer-box text-center bg-dark text-white px-4 py-2 rounded-pill fw-bold shadow-sm d-flex align-items-center">
                     <i class="bi bi-alarm text-warning me-2 fs-5 lh-1"></i> 
                     <span id="timer" class="lh-1" style="font-family: monospace; font-size: 1.1rem; letter-spacing: 1px;">--:--:--</span>
@@ -173,7 +185,7 @@
                     <div class="d-flex flex-wrap gap-2 mb-4">
                         @foreach ($exam->questions as $key => $q)
                             @php
-                                $isFilled = $session->answers->where('question_id', $q->id)->first();
+                                $isFilled = isset($userAnswers[$q->id]);
                             @endphp
                             <div class="number-box {{ $isFilled ? 'filled' : '' }}" 
                                  id="num-{{ $key + 1 }}" onclick="jumpTo('{{ $key + 1 }}')">
@@ -206,7 +218,7 @@
     <script>
     // Data dari Laravel
     const questions = @json($exam->questions);
-    let userAnswers = @json($session->answers->pluck('answer', 'question_id'));
+    let userAnswers = @json($userAnswers);
     const sessionId = {{ $session->id }};
     let currentIndex = 0;
 
@@ -278,6 +290,40 @@
         }
     }
 
+    // LocalStorage Keys & Fallback
+    const storageKey = `cbt_exam_answers_session_${sessionId}`;
+    
+    // Load local storage backups if available
+    try {
+        const backupAnswers = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        Object.assign(userAnswers, backupAnswers);
+    } catch(e) {}
+
+    let pendingRequests = 0;
+
+    // Update Visual status Badge
+    function updateSaveStatus(status, message) {
+        const badge = document.getElementById('saveStatus');
+        const icon = document.getElementById('saveStatusIcon');
+        const text = document.getElementById('saveStatusText');
+        
+        if (!badge || !icon || !text) return;
+
+        if (status === 'saving') {
+            badge.className = 'd-flex align-items-center badge bg-warning-subtle text-warning px-3 py-2 rounded-pill fw-medium';
+            icon.className = 'bi bi-arrow-repeat spin-animation me-1';
+            text.innerText = message || 'Menyimpan...';
+        } else if (status === 'saved') {
+            badge.className = 'd-flex align-items-center badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-medium';
+            icon.className = 'bi bi-cloud-check-fill me-1';
+            text.innerText = message || 'Semua jawaban tersimpan';
+        } else if (status === 'error') {
+            badge.className = 'd-flex align-items-center badge bg-danger-subtle text-danger px-3 py-2 rounded-pill fw-medium';
+            icon.className = 'bi bi-exclamation-triangle-fill me-1';
+            text.innerText = message || 'Koneksi terputus! Menyimpan di browser';
+        }
+    }
+
     // Fungsi Simpan Jawaban (PG & Benar/Salah)
     function selectOption(label, questionId) {
         document.querySelectorAll('.option-container').forEach(c => c.classList.remove('selected'));
@@ -287,20 +333,35 @@
         document.getElementById('num-' + (currentIndex + 1)).classList.add('filled');
         userAnswers[questionId] = label.toUpperCase();
 
+        saveToLocalStorage(questionId, label.toUpperCase());
         sendSaveRequest(questionId, label.toUpperCase());
     }
 
     // Fungsi Simpan Jawaban (Essay)
     function saveEssayAnswer(questionId, value) {
-        if (value.trim() !== "") {
+        const savedVal = userAnswers[questionId] || '';
+        if (value.trim() !== "" && value !== savedVal) {
             document.getElementById('num-' + (currentIndex + 1)).classList.add('filled');
             userAnswers[questionId] = value;
+            
+            saveToLocalStorage(questionId, value);
             sendSaveRequest(questionId, value);
         }
     }
 
-    // AJAX Helper untuk Simpan ke Server
-    function sendSaveRequest(questionId, answer) {
+    function saveToLocalStorage(questionId, answer) {
+        try {
+            const backup = JSON.parse(localStorage.getItem(storageKey) || '{}');
+            backup[questionId] = answer;
+            localStorage.setItem(storageKey, JSON.stringify(backup));
+        } catch(e) {}
+    }
+
+    // AJAX Helper dengan Auto-Retry dan Network Fallback
+    function sendSaveRequest(questionId, answer, retryCount = 0) {
+        pendingRequests++;
+        updateSaveStatus('saving', 'Menyimpan jawaban...');
+
         fetch("{{ route('siswa.exams.save-answer') }}", {
             method: "POST",
             headers: {
@@ -308,15 +369,57 @@
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ session_id: sessionId, question_id: questionId, answer: answer })
+        })
+        .then(response => {
+            pendingRequests--;
+            if (response.ok) {
+                if (pendingRequests === 0) {
+                    updateSaveStatus('saved');
+                }
+            } else {
+                throw new Error('Server error');
+            }
+        })
+        .catch(error => {
+            pendingRequests--;
+            if (retryCount < 3) {
+                setTimeout(() => {
+                    sendSaveRequest(questionId, answer, retryCount + 1);
+                }, 2000);
+            } else {
+                updateSaveStatus('error');
+                Swal.fire({
+                    title: 'Koneksi Terputus!',
+                    text: 'Jawaban Anda dicadangkan secara lokal di browser. Jangan tutup halaman ini sampai koneksi pulih.',
+                    icon: 'warning',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 6000
+                });
+            }
         });
     }
 
+    // Menyimpan jawaban essay jika ada sebelum navigasi
+    function saveCurrentAnswerIfEssay() {
+        const q = questions[currentIndex];
+        if (q && q.jenis_soal === 'essay') {
+            const textarea = document.getElementById('essayAnswer');
+            if (textarea) {
+                saveEssayAnswer(q.id, textarea.value);
+            }
+        }
+    }
+
     function jumpTo(number) { 
+        saveCurrentAnswerIfEssay();
         currentIndex = number - 1; 
         renderQuestion(currentIndex); 
     }
     
     nextBtn.addEventListener('click', () => {
+        saveCurrentAnswerIfEssay();
         if (currentIndex < questions.length - 1) { 
             currentIndex++; 
             renderQuestion(currentIndex); 
@@ -326,20 +429,28 @@
     });
 
     prevBtn.addEventListener('click', () => {
+        saveCurrentAnswerIfEssay();
         if (currentIndex > 0) { 
             currentIndex--; 
             renderQuestion(currentIndex); 
         }
     });
 
-    // Timer Logic (Tetap sama)
-    let timeLeft = {{ $exam->duration * 60 }};
+    // Robust Timer Logic (immune to client sleep, freeze, and background tab behavior)
+    let timeLeft = {{ $timeLeft }};
+    const targetTime = Date.now() + (timeLeft * 1000);
+
     const timerInterval = setInterval(() => {
-        const h = Math.floor(timeLeft / 3600);
-        const m = Math.floor((timeLeft % 3600) / 60);
-        const s = timeLeft % 60;
+        const now = Date.now();
+        const secondsLeft = Math.max(0, Math.round((targetTime - now) / 1000));
+        
+        const h = Math.floor(secondsLeft / 3600);
+        const m = Math.floor((secondsLeft % 3600) / 60);
+        const s = secondsLeft % 60;
+        
         document.getElementById('timer').innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-        if (timeLeft <= 0) { 
+        
+        if (secondsLeft <= 0) { 
             clearInterval(timerInterval); 
             Swal.fire({
                 title: 'Waktu Habis!',
@@ -350,7 +461,6 @@
                 timer: 2000
             }).then(() => executeFinish());
         }
-        timeLeft--;
     }, 1000);
 
     function finishExam() {
@@ -375,10 +485,17 @@
             didOpen: () => Swal.showLoading()
         });
 
+        saveCurrentAnswerIfEssay();
+
         fetch("{{ route('siswa.exams.finish', $exam->id) }}", {
             method: "POST",
             headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}", "Content-Type": "application/json" }
-        }).then(() => window.location.href = "{{ route('siswa.dashboard') }}");
+        }).then(() => {
+            try {
+                localStorage.removeItem(storageKey);
+            } catch(e) {}
+            window.location.href = "{{ route('siswa.dashboard') }}";
+        });
     }
 
     renderQuestion(currentIndex);
